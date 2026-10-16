@@ -1,0 +1,18 @@
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
+import { crx } from '@crxjs/vite-plugin';
+
+export default defineConfig({
+  plugins: [react(), tailwindcss(), crx({ manifest: {
+    manifest_version: 3,
+    name: 'Browser Proxy',
+    version: '0.1.0',
+    description: '__MSG_description__',
+    default_locale: 'en',
+    minimum_chrome_version: '120',
+    permissions: ['proxy', 'storage'],
+    action: { default_popup: 'popup.html', default_title: 'Browser Proxy' },
+    background: { service_worker: 'src/background.ts', type: 'module' },
+  } })],
+});

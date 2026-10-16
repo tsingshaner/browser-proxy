@@ -7,7 +7,7 @@
   },
   "scripts": {
     "build": "pnpm run build:modern && pnpm run build:legacy",
-    "build:modern": "pnpm --filter @browser-proxy/core build",
+    "build:modern": "pnpm --filter \"@browser-proxy/*\" -r build",
     "build:legacy": "pnpm --filter omega-build build",
     "legacy:assets": "pnpm --filter omega-web exec bower install",
     "test": "pnpm run test:modern && pnpm run test:legacy",

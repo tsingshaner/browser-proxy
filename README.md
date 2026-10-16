@@ -97,14 +97,16 @@ pnpm test
 pnpm build
 ```
 
-`pnpm build` builds the new TypeScript core with tsdown and then the existing
+`pnpm build` builds the new TypeScript core with tsdown, the React extension with
+CRXJS, and then the existing
 extension with Grunt. Load `omega-target-chromium-extension/build` as an unpacked
 extension. The first legacy build downloads its frontend assets through Bower;
 GitHub network access is required. `pnpm legacy:assets` can prefetch those assets.
 The pnpm lockfile covers npm dependencies; legacy Bower assets retain their old
 resolution mechanism until the React migration removes them.
 
-- `pnpm build:modern`: build the new core package (currently an empty migration entry).
+- `pnpm build:modern`: build the core package and new Chromium extension.
+- `pnpm --filter @browser-proxy/extension dev`: run the CRXJS development server.
 - `pnpm build:legacy`: build the existing extension without `npm link`.
 - `pnpm test:modern`: run Vitest behavior checks.
 - `pnpm test:legacy`: run the existing PAC and configuration-sync suites.
@@ -112,8 +114,10 @@ resolution mechanism until the React migration removes them.
 - `pnpm --filter omega-build exec grunt watch`: watch the legacy modules.
 
 The new `@browser-proxy/core` and `@browser-proxy/extension` workspaces coexist
-with the old packages. The extension workspace is reserved for the next React /
-CRXJS slice; it does not yet produce a separate extension. Existing storage keys
+with the old packages. Load `apps/extension/dist` for the new Chromium extension (Chrome 120+).
+It currently supports direct/system mode switching, with isolated local storage;
+legacy profiles are not yet imported. Load only one proxy extension at a time
+to avoid competing for proxy control. Existing storage keys
 and browser protocols are unchanged. Internal dependencies use `workspace:*`.
 
 
