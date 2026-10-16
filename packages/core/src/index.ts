@@ -5,6 +5,7 @@ export interface ProxyProfile {
   scheme: ProxyScheme;
   host: string;
   port: number;
+  auth?: { username: string; password: string };
 }
 export interface ProxyConfig {
   version: 1;
@@ -35,7 +36,15 @@ export function parseProfile(value: unknown): ProxyProfile {
       throw new Error();
     }
   } catch { throw new Error('invalid-profile'); }
-  return { id: p.id, name: p.name.trim(), scheme: p.scheme as ProxyScheme, host, port: p.port };
+  let auth: ProxyProfile['auth'];
+  if (p.auth !== undefined) {
+    if (!p.auth || typeof p.auth !== 'object' || !['http', 'https'].includes(p.scheme as string)) throw new Error('invalid-profile');
+    const credentials = p.auth as Record<string, unknown>;
+    if (typeof credentials.username !== 'string' || !credentials.username ||
+        typeof credentials.password !== 'string') throw new Error('invalid-profile');
+    auth = { username: credentials.username, password: credentials.password };
+  }
+  return { id: p.id, name: p.name.trim(), scheme: p.scheme as ProxyScheme, host, port: p.port, ...(auth ? { auth } : {}) };
 }
 
 export function parseConfig(value: unknown): ProxyConfig {

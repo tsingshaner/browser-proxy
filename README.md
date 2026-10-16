@@ -116,6 +116,8 @@ resolution mechanism until the React migration removes them.
 The new `@browser-proxy/core` and `@browser-proxy/extension` workspaces coexist
 with the old packages. Load `apps/extension/dist` for the new Chromium extension (Chrome 120+).
 It supports direct/system modes and HTTP, HTTPS, SOCKS4, and SOCKS5 fixed proxies.
+HTTP/HTTPS proxy authentication is supported; credentials stay in local extension storage.
+The popup reports rejected credentials. Chromium does not support SOCKS username/password authentication.
 Use the popup’s Manage proxies button to create or edit servers in the options page.
 Concurrent edits are rejected with a reload prompt; switch away before deleting an active proxy.
 New configuration uses versioned, isolated local storage;

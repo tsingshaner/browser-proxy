@@ -18,3 +18,10 @@ test.each([
 ])('rejects malformed profiles: %j', patch => {
   expect(() => parseProfile({ id: 'p', name: 'Proxy', scheme: 'http', host: 'localhost', port: 80, ...patch })).toThrow('invalid-profile');
 });
+
+test('preserves HTTP credentials and rejects unsupported or malformed authentication', () => {
+  const profile = { id: 'p', name: 'Proxy', scheme: 'http', host: 'localhost', port: 80, auth: { username: 'user', password: 'secret' } };
+  expect(parseProfile(profile).auth).toEqual(profile.auth);
+  expect(() => parseProfile({ ...profile, scheme: 'socks5' })).toThrow('invalid-profile');
+  expect(() => parseProfile({ ...profile, auth: { username: 'user', password: 123 } })).toThrow('invalid-profile');
+});

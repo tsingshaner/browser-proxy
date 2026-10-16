@@ -33,6 +33,7 @@ const ProxySettings = () => {
     void request({ type: 'save-profile', revision: config?.revision, profile: {
       id: editing?.id ?? crypto.randomUUID(), name: data.get('name'),
       host: data.get('host'), scheme: data.get('scheme'), port: Number(data.get('port')),
+      ...(data.get('username') ? { auth: { username: data.get('username'), password: data.get('password') } } : {}),
     } });
   };
 
@@ -53,6 +54,9 @@ const ProxySettings = () => {
         </select></label>
         <label className="block text-sm font-medium">{t('host')}<input className={input} name="host" required placeholder="proxy.example.com" defaultValue={editing?.host} /></label>
         <label className="block text-sm font-medium">{t('port')}<input className={input} name="port" type="number" required min={1} max={65535} step={1} defaultValue={editing?.port ?? 8080} /></label>
+        <p className="text-xs text-zinc-500">{t('authHint')}</p>
+        <label className="block text-sm font-medium">{t('username')}<input className={input} name="username" autoComplete="off" defaultValue={editing?.auth?.username} /></label>
+        <label className="block text-sm font-medium">{t('password')}<input className={input} name="password" type="password" autoComplete="new-password" defaultValue={editing?.auth?.password} /></label>
         <div className="flex gap-3"><button className={`${button} bg-zinc-900 text-white hover:bg-zinc-800`} type="submit">{t('save')}</button>
           <button className={button} type="button" onClick={() => { setEditing(undefined); }}>{t('cancel')}</button></div>
       </fieldset>

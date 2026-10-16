@@ -1,4 +1,5 @@
 import { configure, getConsoleSink, getLogger } from '@logtape/logtape';
+import { createProxyAuth } from './proxy-auth';
 import { createModeController } from './mode-controller';
 
 const logger = getLogger(['browser-proxy']);
@@ -35,7 +36,12 @@ void controller.ready.catch(async () => {
 chrome.runtime.onMessage.addListener((message: unknown, sender, respond) => {
   if (sender.id !== chrome.runtime.id) return false;
   void controller.handle(message).then(
-    (config) => respond({ ok: true, config }),
+    async (config) => {
+      if (message && typeof message === 'object' && 'type' in message && message.type !== 'get-config') {
+        await chrome.storage.session.set({ authFailed: false }).catch(() => undefined);
+      }
+      respond({ ok: true, config });
+    },
     async (error: unknown) => {
       await logging;
       logger.error('Could not complete proxy mode request.');
@@ -46,3 +52,22 @@ chrome.runtime.onMessage.addListener((message: unknown, sender, respond) => {
   );
   return true;
 });
+
+
+const auth = createProxyAuth(
+  async () => {
+    const control = await chrome.proxy.settings.get({ incognito: false });
+    if (control.levelOfControl !== 'controlled_by_this_extension') throw new Error('proxy-unavailable');
+    return controller.handle({ type: 'get-config' });
+  },
+  async (failed) => {
+    await chrome.storage.session.set({ authFailed: failed });
+    if (failed) logger.warn('Proxy authentication failed. Check the saved credentials.');
+  },
+);
+chrome.webRequest.onAuthRequired.addListener((details, respond) => {
+  if (respond) void auth.respond(details).then(respond, () => { respond({}); });
+  return undefined;
+}, { urls: ['<all_urls>'] }, ['asyncBlocking']);
+chrome.webRequest.onCompleted.addListener(details => { void auth.complete(details.requestId, details.statusCode !== 407).catch(() => undefined); }, { urls: ['<all_urls>'] });
+chrome.webRequest.onErrorOccurred.addListener(details => { void auth.complete(details.requestId, false).catch(() => undefined); }, { urls: ['<all_urls>'] });

@@ -7,6 +7,7 @@ export const translationsReady = i18next.use(initReactI18next).init({
   interpolation: { escapeValue: false },
   resources: {
     en: { translation: {
+      username: 'Username (optional)', password: 'Password', authHint: 'Authentication supports HTTP/HTTPS proxies. Credentials are stored locally; leave username empty to remove them.', authFailed: 'Proxy authentication failed. Check your saved username and password.',
       manage: 'Manage proxies', profiles: 'Fixed proxies', add: 'New proxy', edit: 'Edit', remove: 'Delete',
       name: 'Name', host: 'Server address', port: 'Port', scheme: 'Protocol', save: 'Save proxy', cancel: 'Cancel',
       empty: 'No proxies yet. Add a server to get started.',
@@ -21,6 +22,7 @@ export const translationsReady = i18next.use(initReactI18next).init({
       retry: 'Retry', footer: 'Changes apply to regular browsing.',
     } },
     zh: { translation: {
+      username: '用户名（可选）', password: '密码', authHint: '认证仅支持 HTTP/HTTPS 代理。凭据存储在本地，清空用户名可移除凭据。', authFailed: '代理认证失败，请检查已保存的用户名和密码。',
       manage: '管理代理', profiles: '固定代理', add: '新建代理', edit: '编辑', remove: '删除',
       name: '名称', host: '服务器地址', port: '端口', scheme: '协议', save: '保存代理', cancel: '取消',
       empty: '还没有代理，添加服务器即可开始使用。',

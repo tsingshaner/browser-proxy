@@ -12,6 +12,15 @@ const ModeSwitcher = () => {
   const mode = config?.mode;
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState('');
+  const [authFailed, setAuthFailed] = useState(false);
+  useEffect(() => {
+    void chrome.storage.session.get('authFailed').then(value => { setAuthFailed(value.authFailed === true); });
+    const listener = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
+      if (area === 'session' && changes.authFailed) setAuthFailed(changes.authFailed.newValue === true);
+    };
+    chrome.storage.onChanged.addListener(listener);
+    return () => { chrome.storage.onChanged.removeListener(listener); };
+  }, []);
 
   const request = async (next?: string) => {
     setBusy(true);
@@ -28,6 +37,7 @@ const ModeSwitcher = () => {
   useEffect(() => { void request(); }, []);
 
   return <>
+    {authFailed && <p role="alert" className="mb-4 text-sm text-red-700">{t('authFailed')}</p>}
     <fieldset disabled={busy} className="space-y-3">
       <legend className="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-500">{t('mode')}</legend>
       {['direct', 'system', ...(config?.profiles.map(p => p.id) ?? [])].map((value) => <label key={value}
