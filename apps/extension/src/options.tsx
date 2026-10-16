@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { createRoot } from 'react-dom/client';
 import { useTranslation } from 'react-i18next';
 import type { ProxyConfig, ProxyProfile } from '@browser-proxy/core';
+import { RulesSettings } from './rules-settings';
 import { translationsReady } from './i18n';
 import { requestConfig, errorKey } from './client';
 import './style.css';
@@ -37,7 +38,7 @@ const ProxySettings = () => {
     } });
   };
 
-  return <main className="mx-auto max-w-2xl px-6 py-12 text-zinc-950">
+  return <section>
     <header className="mb-8"><p className="text-sm text-zinc-500">Browser Proxy</p>
       <h1 className="mt-2 text-2xl font-semibold tracking-tight">{t('profiles')}</h1></header>
     <div aria-live="polite" className="mb-5 text-sm">
@@ -69,9 +70,18 @@ const ProxySettings = () => {
       </li>)}</ul>
       {config && !config.profiles.length && <p className="rounded-xl border border-dashed border-zinc-200 p-8 text-center text-sm text-zinc-500">{t('empty')}</p>}
     </>}
+  </section>;
+};
+const Options = () => {
+  const { t } = useTranslation();
+  const [page, setPage] = useState('profiles');
+  return <main className="mx-auto max-w-2xl px-6 py-12 text-zinc-950">
+    <nav className="mb-8 flex gap-3">{['profiles', 'rulesTitle'].map(value => <button key={value} className={button}
+      aria-pressed={page === value} onClick={() => { setPage(value); }}>{t(value)}</button>)}</nav>
+    {page === 'profiles' ? <ProxySettings /> : <RulesSettings />}
   </main>;
 };
 void translationsReady.then(() => {
   document.documentElement.lang = chrome.i18n.getUILanguage();
-  createRoot(document.getElementById('root')!).render(<ProxySettings />);
+  createRoot(document.getElementById('root')!).render(<Options />);
 });

@@ -106,3 +106,18 @@ describe('fixed profiles through the background boundary', () => {
     expect(stored).toMatchObject({ revision: 1, profiles: [profile] });
   });
 });
+
+test('saves domain rules, applies automatic routing, and protects referenced profiles', async () => {
+  let stored: unknown;
+  let active = parseConfig(undefined);
+  const controller = createModeController({ read: async () => stored,
+    write: async config => { stored = config; }, apply: async config => { active = config; } });
+  await controller.handle({ type: 'save-profile', revision: 0, profile: { id: 'office', name: 'Office', scheme: 'http', host: 'localhost', port: 8080 } });
+  await controller.handle({ type: 'save-rules', revision: 1, rules: [{ domain: 'EXAMPLE.COM.', target: 'office' }], defaultTarget: 'direct' });
+  await controller.handle({ type: 'set-mode', revision: 2, mode: 'auto' });
+  expect(active).toMatchObject({ mode: 'auto', rules: [{ domain: 'example.com', target: 'office' }], defaultTarget: 'direct' });
+  await expect(controller.handle({ type: 'delete-profile', revision: 3, id: 'office' })).rejects.toThrow('referenced-profile');
+  await expect(controller.handle({ type: 'save-rules', revision: 3, rules: [{ domain: 'bad/path', target: 'office' }], defaultTarget: 'direct' })).rejects.toThrow('invalid-rule');
+  await expect(controller.handle({ type: 'save-rules', revision: 3 })).rejects.toThrow('invalid-rule');
+  expect(stored).toMatchObject({ revision: 3 });
+});

@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { createProxyAuth } from './proxy-auth';
 import type { ProxyConfig } from '@browser-proxy/core';
 
-const config: ProxyConfig = { version: 1, revision: 0, mode: 'office', profiles: [{
+const config: ProxyConfig = { version: 1, revision: 0, mode: 'office', rules: [], defaultTarget: 'direct', profiles: [{
   id: 'office', name: 'Office', scheme: 'http', host: 'proxy.example', port: 8080,
   auth: { username: 'user', password: 'secret' },
 }] };
@@ -41,4 +41,22 @@ describe('proxy authentication boundary', () => {
     current.mode = 'direct';
     expect(await auth.respond({ ...challenge, requestId: '3' })).toEqual({});
   });
+});
+
+test('authenticates only the proxy selected by the current domain rule', async () => {
+  const automatic = { ...config, mode: 'auto', rules: [{ domain: 'example.com', target: 'office' }] };
+  const auth = createProxyAuth(async () => automatic, async () => {});
+  expect(await auth.respond({ ...challenge, url: 'https://example.com/' })).toHaveProperty('authCredentials');
+  expect(await auth.respond({ ...challenge, requestId: '2', url: 'https://other.test/' })).toEqual({});
+});
+
+test('keeps retry limits per proxy when a redirect reuses the request ID', async () => {
+  const automatic: ProxyConfig = { ...config, mode: 'auto',
+    profiles: [...config.profiles, { ...config.profiles[0]!, id: 'second', port: 8081 }],
+    rules: [{ domain: 'a.test', target: 'office' }, { domain: 'b.test', target: 'second' }] };
+  const auth = createProxyAuth(async () => automatic, async () => {});
+  const first = { ...challenge, url: 'https://a.test/' };
+  expect(await auth.respond(first)).toHaveProperty('authCredentials');
+  expect(await auth.respond({ ...challenge, url: 'https://b.test/', challenger: { host: 'proxy.example', port: 8081 } })).toHaveProperty('authCredentials');
+  expect(await auth.respond(first)).toEqual({ cancel: true });
 });

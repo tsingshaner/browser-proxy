@@ -1,3 +1,4 @@
+import { generatePac } from '@browser-proxy/core';
 import { configure, getConsoleSink, getLogger } from '@logtape/logtape';
 import { createProxyAuth } from './proxy-auth';
 import { createModeController } from './mode-controller';
@@ -22,7 +23,9 @@ const controller = createModeController({
     if (current.levelOfControl === 'controlled_by_other_extensions' ||
         current.levelOfControl === 'not_controllable') throw new Error('proxy-unavailable');
     const profile = config.profiles.find(p => p.id === config.mode);
-    const value: chrome.proxy.ProxyConfig = profile
+    const value: chrome.proxy.ProxyConfig = config.mode === 'auto'
+      ? { mode: 'pac_script', pacScript: { data: generatePac(config), mandatory: true } }
+      : profile
       ? { mode: 'fixed_servers', rules: { singleProxy: { scheme: profile.scheme, host: profile.host, port: profile.port } } }
       : { mode: config.mode as 'direct' | 'system' };
     await chrome.proxy.settings.set({ value, scope: 'regular' });
@@ -45,7 +48,7 @@ chrome.runtime.onMessage.addListener((message: unknown, sender, respond) => {
     async (error: unknown) => {
       await logging;
       logger.error('Could not complete proxy mode request.');
-      const code = error instanceof Error && ['conflict', 'invalid-profile', 'active-profile'].includes(error.message)
+      const code = error instanceof Error && ['conflict', 'invalid-profile', 'active-profile', 'invalid-rule', 'referenced-profile'].includes(error.message)
         ? error.message : 'error';
       respond({ ok: false, code });
     },
