@@ -18,15 +18,17 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '22'
+          node-version-file: '.node-version'
 
-      - name: Install dependencies, build, release
-        working-directory: 'omega-build'
+      - uses: pnpm/action-setup@v4
+
+      - name: Install dependencies, validate, build, release
         run: |
-          npm run deps
-          npm run dev
-          npm run build
-          npm run release
+          pnpm install --frozen-lockfile
+          pnpm typecheck
+          pnpm test
+          pnpm build
+          pnpm release:legacy
 
       - name: Generate SHA-256 checksum
         run: |

@@ -3,3 +3,8 @@ bower_components
 package-lock.json
 *-release.zip
 *.swp
+
+# Modern workspace outputs
+/apps/*/dist/
+/packages/*/dist/
+/coverage/

@@ -87,29 +87,35 @@ below.
 
 ## Building the project
 
-ZeroOmega has migrated to use npm and grunt for building. Please note that
-node 20.x is required for this project.
+The migration workspace requires Node.js 24.11+ (24.x) and pnpm 12.11.2.
+Enable pnpm with Corepack (`corepack enable`), then run from the repository root:
 
-To build the project:
+```sh
+pnpm install --frozen-lockfile
+pnpm typecheck
+pnpm test
+pnpm build
+```
 
-    # Install node and npm first (make sure node --version >= 20), then:
-    
-    # In the project folder:
-    cd omega-build
-    npm run deps # This runs npm install in every module.
-    npm run dev # This runs npm link to aid local development.
-    # Note: the previous command may require sudo in some environments.
-    # The modules are now working. We can build now:
-    npm run build
-    # After building, a "build" folder will be generated in omega-target-chromium-extension folder.
-    # The folder above can be loaded as an unpacked extension in Chromium now.
-    npm run release
-    # After release, a "dist" folder will be generated in root folder.
-    cd ../dist # Return to generated folder.
-    # The chromium-release.zip and firefox-release.zip are the package files corresponding to chromium and firefox respectively.
+`pnpm build` builds the new TypeScript core with tsdown and then the existing
+extension with Grunt. Load `omega-target-chromium-extension/build` as an unpacked
+extension. The first legacy build downloads its frontend assets through Bower;
+GitHub network access is required. `pnpm legacy:assets` can prefetch those assets.
+The pnpm lockfile covers npm dependencies; legacy Bower assets retain their old
+resolution mechanism until the React migration removes them.
 
-To enable `grunt watch`, run `grunt watch` once in the `omega-build` directory.
-This will effectively run `grunt watch` in every module in this project.
+- `pnpm build:modern`: build the new core package (currently an empty migration entry).
+- `pnpm build:legacy`: build the existing extension without `npm link`.
+- `pnpm test:modern`: run Vitest behavior checks.
+- `pnpm test:legacy`: run the existing PAC and configuration-sync suites.
+- `pnpm release:legacy`: package the previously built extension into `dist`.
+- `pnpm --filter omega-build exec grunt watch`: watch the legacy modules.
+
+The new `@browser-proxy/core` and `@browser-proxy/extension` workspaces coexist
+with the old packages. The extension workspace is reserved for the next React /
+CRXJS slice; it does not yet produce a separate extension. Existing storage keys
+and browser protocols are unchanged. Internal dependencies use `workspace:*`.
+
 
 License
 -------

@@ -16,7 +16,8 @@
     "grunt-mocha-test": "~0.11.0",
     "load-grunt-config": "^0.13.1",
     "lolex": "^1.4.0",
-    "minifyify": "^4.1.1"
+    "minifyify": "^4.1.1",
+    "grunt-cli": "1.5.0"
   },
   "dependencies": {
     "ip-address": "^4.0.0",
@@ -28,7 +29,6 @@
     "uglify-js-real": "./uglifyjs.js"
   },
   "scripts": {
-    "dev": "npm link",
     "test": "TZ=Europe/London grunt test"
   }
 }

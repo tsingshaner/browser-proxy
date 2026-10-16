@@ -4,14 +4,13 @@
   "private": true,
   "devDependencies": {
     "bower": "~1.8.4",
-    "grunt-cli": "~1.2.0",
+    "grunt-cli": "1.5.0",
     "grunt": "~0.4.1",
     "grunt-hub": "^0.7.0"
   },
   "scripts": {
-    "deps": "npm install && (cd ../omega-pac && npm install) && (cd ../omega-target && npm install) && (cd ../omega-web && npm install && bower install) && (cd ../omega-target-chromium-extension/ && npm install)",
-    "dev": "(cd ../omega-pac && npm run dev) && (cd ../omega-target && npm run dev) && (cd ../omega-web && npm run dev) && (cd ../omega-target-chromium-extension/ && npm run dev)",
+    "deps": "pnpm install && pnpm --filter omega-web exec bower install",
     "build": "grunt",
-    "release": "cd ../omega-target-chromium-extension && grunt  release"
+    "release": "pnpm --filter omega-target-chromium-extension exec grunt release"
   }
 }

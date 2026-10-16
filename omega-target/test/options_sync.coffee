@@ -37,14 +37,14 @@ describe 'OptionsSync', ->
       newVal = {revision: '2'}
       oldVal = {revision: '1'}
       sync.merge('example', newVal, oldVal).should.equal(newVal)
-    it 'should use oldVal when sync is disabled in newVal', ->
+    it 'should honor newer revisions despite legacy syncOptions in newVal', ->
       newVal = {revision: '2', is: 'newVal', syncOptions: 'disabled'}
       oldVal = {revision: '1', is: 'oldVal'}
-      sync.merge('example', newVal, oldVal).should.equal(oldVal)
-    it 'should use oldVal when sync is disabled in oldVal', ->
+      sync.merge('example', newVal, oldVal).should.equal(newVal)
+    it 'should honor newer revisions despite legacy syncOptions in oldVal', ->
       newVal = {revision: '2', is: 'newVal'}
       oldVal = {revision: '1', is: 'oldVal', syncOptions: 'disabled'}
-      sync.merge('example', newVal, oldVal).should.equal(oldVal)
+      sync.merge('example', newVal, oldVal).should.equal(newVal)
     it 'should favor oldVal when revisions are equal', ->
       newVal = {revision: '1', is: 'newVal'}
       oldVal = {revision: '1', is: 'oldVal'}
@@ -81,7 +81,7 @@ describe 'OptionsSync', ->
       sinon.spy(storage, 'set')
       sinon.spy(storage, 'remove')
 
-      sync = new OptionsSync(storage, unlimited)
+      sync = new OptionsSync(storage, null, null, unlimited)
       sync.debounce = 0
       sync.requestPush({a: undefined, b: 1})
 
@@ -100,7 +100,7 @@ describe 'OptionsSync', ->
       sinon.spy(storage, 'set')
       sinon.spy(storage, 'remove')
 
-      sync = new OptionsSync(storage, unlimited)
+      sync = new OptionsSync(storage, null, null, unlimited)
       sync.debounce = 0
       sync.requestPush({a: undefined})
       sync.requestPush({b: 2})
@@ -110,19 +110,20 @@ describe 'OptionsSync', ->
       sync.requestPush({e: 1})
       sync.requestPush({e: undefined})
 
-    it 'should disable syncing for the profiles if quota is exceeded', (done) ->
+    it 'should mark quota errors before retrying pending changes', (done) ->
       options = {'+a': {is: 'a', oversized: true}, b: {is: 'b'}}
 
       storage = new Storage()
       storage.set = (changes) ->
         for key, value of changes
-          if value.oversized
+          if value.oversized and not value.syncError
             err = new Storage.QuotaExceededError()
             err.perItem = true
             return Promise.reject(err)
         storage.set.should.have.been.calledTwice
         storage.set.should.have.been.calledWith(options)
-        storage.set.should.have.been.calledWith({b: {is: 'b'}})
+        retried = storage.set.secondCall.args[0]['+a']
+        retried.syncError.reason.should.equal('quotaPerItem')
         options['+a'].syncOptions.should.equal('disabled')
         options['+a'].syncError.reason.should.equal('quotaPerItem')
         done()
@@ -130,7 +131,7 @@ describe 'OptionsSync', ->
 
       sinon.spy(storage, 'set')
 
-      sync = new OptionsSync(storage, unlimited)
+      sync = new OptionsSync(storage, null, null, unlimited)
       sync.debounce = 0
       sync.requestPush(options)
 

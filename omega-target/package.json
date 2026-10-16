@@ -17,19 +17,19 @@
     "load-grunt-config": "^0.13.1",
     "minifyify": "^4.1.1",
     "sinon": "^1.12.2",
-    "sinon-chai": "^2.6.0"
+    "sinon-chai": "^2.6.0",
+    "grunt-cli": "1.5.0"
   },
   "dependencies": {
     "bluebird": "^2.3.2",
     "jsondiffpatch": "^0.1.8",
     "limiter": "^1.0.5",
-    "omega-pac": "../omega-pac"
+    "omega-pac": "workspace:*"
   },
   "browser": {
     "omega-pac": "./omega_pac_shim.js"
   },
   "scripts": {
-    "dev": "npm link omega-pac && npm link",
     "test": "grunt test"
   }
 }
