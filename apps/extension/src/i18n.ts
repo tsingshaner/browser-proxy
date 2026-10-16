@@ -7,7 +7,7 @@ export const translationsReady = i18next.use(initReactI18next).init({
   interpolation: { escapeValue: false },
   resources: {
     en: { translation: {
-      reload: 'Reload settings', auto: 'Domain rules', autoHint: 'Choose a proxy by domain.', rulesTitle: 'Domain rules', domain: 'Domain', target: 'Connection', defaultTarget: 'Default connection', addRule: 'Add rule', saveRules: 'Save rules', rulesHint: 'Exact domains only. Case and trailing dots are ignored; international domains are stored as ASCII.',
+      moveUp: 'Move up', moveDown: 'Move down', reload: 'Reload settings', auto: 'Domain rules', autoHint: 'Choose a proxy by domain.', rulesTitle: 'Domain rules', domain: 'Domain', target: 'Connection', defaultTarget: 'Default connection', addRule: 'Add rule', saveRules: 'Save rules', rulesHint: 'Use exact domains or *.example.com for subdomains only. The first match wins. Case and trailing dots are ignored; international domains are stored as ASCII.',
       'invalid-rule': 'Enter a domain and an existing proxy or direct connection. URLs, IP/CIDR, and advanced patterns are not supported.',
       'referenced-profile': 'Remove this proxy from rules and the default connection before deleting it.',
       username: 'Username (optional)', password: 'Password', authHint: 'Authentication supports HTTP/HTTPS proxies. Credentials are stored locally; leave username empty to remove them.', authFailed: 'Proxy authentication failed. Check your saved username and password.',
@@ -25,7 +25,7 @@ export const translationsReady = i18next.use(initReactI18next).init({
       retry: 'Retry', footer: 'Changes apply to regular browsing.',
     } },
     zh: { translation: {
-      reload: '重新加载设置', auto: '域名规则', autoHint: '按访问域名选择代理。', rulesTitle: '域名规则', domain: '域名', target: '连接方式', defaultTarget: '默认连接方式', addRule: '添加规则', saveRules: '保存规则', rulesHint: '仅精确匹配域名；忽略大小写和末尾点，国际化域名转换为 ASCII。',
+      moveUp: '上移', moveDown: '下移', reload: '重新加载设置', auto: '域名规则', autoHint: '按访问域名选择代理。', rulesTitle: '域名规则', domain: '域名', target: '连接方式', defaultTarget: '默认连接方式', addRule: '添加规则', saveRules: '保存规则', rulesHint: '支持精确域名和 *.example.com（仅子域名），第一条命中生效。忽略大小写和末尾点，国际化域名转换为 ASCII。',
       'invalid-rule': '请输入域名，并选择已有代理或直连。不支持网址、IP/CIDR 及高级匹配表达式。',
       'referenced-profile': '请先移除规则及默认连接方式中的引用，再删除此代理。',
       username: '用户名（可选）', password: '密码', authHint: '认证仅支持 HTTP/HTTPS 代理。凭据存储在本地，清空用户名可移除凭据。', authFailed: '代理认证失败，请检查已保存的用户名和密码。',

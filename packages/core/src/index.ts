@@ -60,7 +60,7 @@ export function parseConfig(value: unknown): ProxyConfig {
     if (!rule || typeof rule !== 'object') throw new Error('invalid-rule');
     const r = rule as Record<string, unknown>;
     if (typeof r.domain !== 'string' || typeof r.target !== 'string' || !targets.includes(r.target)) throw new Error('invalid-rule');
-    return { domain: normalizeDomain(r.domain), target: r.target };
+    return { domain: r.domain.startsWith('*.') ? `*.${normalizeDomain(r.domain.slice(2))}` : normalizeDomain(r.domain), target: r.target };
   });
   return { version: 1, revision: c.revision as number, mode: c.mode, profiles, rules, defaultTarget };
 }
@@ -93,9 +93,13 @@ export function normalizeDomain(value: string): string {
 export function resolveTarget(config: ProxyConfig, host: string): string {
   if (config.mode !== 'auto') return config.mode;
   let normalized: string;
-  try { normalized = normalizeHost(host).replace(/\.$/, ''); }
+  try {
+    const input = host.includes(':') && !host.startsWith('[') ? `[${host}]` : host;
+    normalized = new URL(`http://${input}`).hostname.replace(/\.$/, '');
+  }
   catch { return config.defaultTarget; }
-  return config.rules.find(rule => rule.domain === normalized)?.target ?? config.defaultTarget;
+  return config.rules.find(rule => rule.domain.startsWith('*.')
+    ? normalized.length > rule.domain.length - 1 && normalized.endsWith(rule.domain.slice(1)) : rule.domain === normalized)?.target ?? config.defaultTarget;
 }
 
 export function generatePac(value: unknown): string {
@@ -112,7 +116,8 @@ export function generatePac(value: unknown): string {
     host = host.toLowerCase().replace(/\\.$/, '');
     var rules = ${JSON.stringify(rules)};
     for (var i = 0; i < rules.length; i++) {
-      if (host === rules[i].domain) return rules[i].result;
+      var domain = rules[i].domain;
+      if (domain.slice(0, 2) === '*.' ? host.length > domain.length - 1 && host.slice(-domain.length + 1) === domain.slice(1) : host === domain) return rules[i].result;
     }
     return ${JSON.stringify(directive(config.defaultTarget))};
   }`;

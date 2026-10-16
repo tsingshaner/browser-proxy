@@ -18,6 +18,13 @@ export const RulesSettings = () => {
     finally { setBusy(false); }
   };
   useEffect(() => { void request(); }, []);
+  const move = (index: number, direction: number) => {
+    if (!config) return;
+    const rules = [...config.rules];
+    const next = index + direction;
+    [rules[index], rules[next]] = [rules[next]!, rules[index]!];
+    setConfig({ ...config, rules });
+  };
   const input = 'rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm';
   const options = <><option value="direct">{t('direct')}</option>{config?.profiles.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</>;
   return <section className="space-y-4">
@@ -34,6 +41,8 @@ export const RulesSettings = () => {
             onChange={event => { setConfig({ ...config, rules: config.rules.map((r, i) => i === index ? { ...r, domain: event.target.value } : r) }); }} />
           <select className={input} aria-label={`${t('target')} ${index + 1}`} value={rule.target}
             onChange={event => { setConfig({ ...config, rules: config.rules.map((r, i) => i === index ? { ...r, target: event.target.value } : r) }); }}>{options}</select>
+          <button type="button" className={input} disabled={index === 0} aria-label={`${t('moveUp')} ${index + 1}`} onClick={() => { move(index, -1); }}>{t('moveUp')}</button>
+          <button type="button" className={input} disabled={index === config.rules.length - 1} aria-label={`${t('moveDown')} ${index + 1}`} onClick={() => { move(index, 1); }}>{t('moveDown')}</button>
           <button type="button" className={input} onClick={() => { setConfig({ ...config, rules: config.rules.filter((_, i) => i !== index) }); }}>{t('remove')}</button>
         </div>)}
         <div className="flex gap-3"><button type="button" className={input} onClick={() => { setConfig({ ...config, rules: [...config.rules, { domain: '', target: 'direct' }] }); }}>{t('addRule')}</button>

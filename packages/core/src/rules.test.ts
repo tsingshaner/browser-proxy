@@ -25,10 +25,34 @@ describe('exact domain routing', () => {
     expect(resolveTarget(defaultProxy, 'other.test')).toBe('office');
     expect(runInNewContext(`${generatePac(defaultProxy)}; FindProxyForURL('', 'other.test')`)).toBe('PROXY localhost:8080');
   });
-  test.each(['*.example.com', 'https://example.com', 'example.com/path', '127.0.0.1', '10.0.0.0/8', '::1', '\"; throw Error(1);//'])('rejects unsupported rules without generating executable input: %s', domain => {
+  test.each(['a.*.example.com', 'https://example.com', 'example.com/path', '127.0.0.1', '10.0.0.0/8', '::1', '\"; throw Error(1);//'])('rejects unsupported rules without generating executable input: %s', domain => {
     expect(() => generatePac({ ...input, rules: [{ domain, target: 'office' }] })).toThrow();
   });
   test('rejects missing proxy targets', () => {
     expect(() => parseConfig({ ...input, rules: [{ domain: 'example.com', target: 'missing' }] })).toThrow('invalid-rule');
+  });
+});
+
+
+describe('ordered wildcard routing', () => {
+  test('matches only subdomains and uses the first match in both runtimes', () => {
+    const config = parseConfig({ ...input, rules: [
+      { domain: '*.EXAMPLE.COM.', target: 'office' },
+      { domain: 'direct.example.com', target: 'direct' },
+    ] });
+    for (const host of ['sub.example.com', 'deep.sub.example.com', 'under_score.example.com', 'direct.example.com']) {
+      expect(resolveTarget(config, host)).toBe('office');
+      expect(runInNewContext(`${generatePac(config)}; FindProxyForURL('', host)`, { host })).toBe('PROXY localhost:8080');
+    }
+    for (const host of ['example.com', 'badexample.com', '.example.com']) {
+      expect(resolveTarget(config, host)).toBe('direct');
+      expect(runInNewContext(`${generatePac(config)}; FindProxyForURL('', host)`, { host })).toBe('DIRECT');
+    }
+    config.rules.reverse();
+    expect(resolveTarget(config, 'direct.example.com')).toBe('direct');
+    expect(runInNewContext(`${generatePac(config)}; FindProxyForURL('', 'direct.example.com')`)).toBe('DIRECT');
+  });
+  test.each(['*', '*example.com', 'foo.*.com', '*.127.0.0.1', '*.10.0.0.0/8', '*.example.com/path'])('rejects unsupported wildcard patterns: %s', domain => {
+    expect(() => parseConfig({ ...input, rules: [{ domain, target: 'office' }] })).toThrow('invalid-rule');
   });
 });
