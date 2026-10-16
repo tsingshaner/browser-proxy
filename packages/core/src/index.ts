@@ -122,3 +122,5 @@ export function generatePac(value: unknown): string {
     return ${JSON.stringify(directive(config.defaultTarget))};
   }`;
 }
+
+export { inspectBackup, exportBackup, type ImportPreview, type ImportIssue } from './backup';

@@ -125,8 +125,13 @@ ignore a trailing dot, and normalize international names to ASCII. Exact domains
 `*.example.com` matches only subdomains. The first match wins; use Move up/Move down
 to change priority, then save. IP/CIDR, paths, regular expressions, and other wildcard positions are rejected.
 Concurrent edits are rejected with a reload prompt; switch away before deleting an active proxy.
+Backup & restore exports plain JSON including passwords; keep the file private. Imports
+show a preview, validate before saving, and reject stale revisions. Legacy schema-2 JSON
+(`.bak`) imports fixed proxies and one simple switch profile; unsupported rules, bypasses,
+profiles, and settings are reported before explicit partial import. Legacy imports start
+in System mode so routes can be reviewed. Keep the original backup for unsupported content.
 New configuration uses versioned, isolated local storage;
-legacy profiles are not yet imported. Load only one proxy extension at a time
+legacy profiles are never imported automatically. Load only one proxy extension at a time
 to avoid competing for proxy control. Existing storage keys
 and browser protocols are unchanged. Internal dependencies use `workspace:*`.
 

@@ -1,4 +1,4 @@
-import { parseConfig, parseProfile, type ProxyConfig } from '@browser-proxy/core';
+import { inspectBackup, parseConfig, parseProfile, type ProxyConfig } from '@browser-proxy/core';
 
 export function createModeController(io: {
   read(): Promise<unknown>;
@@ -22,11 +22,11 @@ export function createModeController(io: {
       if (!message || typeof message !== 'object') throw new Error('invalid-request');
       const request = message as Record<string, unknown>;
       if (request.type === 'get-config') return structuredClone(config);
-      if (!['set-mode', 'save-profile', 'delete-profile', 'save-rules'].includes(request.type as string)) {
+      if (!['set-mode', 'save-profile', 'delete-profile', 'save-rules', 'import-config'].includes(request.type as string)) {
         throw new Error('invalid-request');
       }
       if (request.revision !== config.revision) throw new Error('conflict');
-      const next = structuredClone(config);
+      let next = structuredClone(config);
       if (request.type === 'set-mode') {
         if (typeof request.mode !== 'string' ||
             !['direct', 'system', 'auto', ...config.profiles.map(p => p.id)].includes(request.mode)) {
@@ -38,6 +38,11 @@ export function createModeController(io: {
         const index = next.profiles.findIndex(p => p.id === profile.id);
         if (index < 0) next.profiles.push(profile);
         else next.profiles[index] = profile;
+      } else if (request.type === 'import-config') {
+        if (typeof request.text !== 'string') throw new Error('invalid-backup');
+        const preview = inspectBackup(request.text);
+        if (preview.issues.length && request.allowPartial !== true) throw new Error('import-warning');
+        next = { ...preview.config, revision: config.revision };
       } else if (request.type === 'save-rules') {
         if (!Array.isArray(request.rules) || typeof request.defaultTarget !== 'string') throw new Error('invalid-rule');
         const validated = parseConfig({ ...next, rules: request.rules, defaultTarget: request.defaultTarget });

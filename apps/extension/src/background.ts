@@ -48,7 +48,7 @@ chrome.runtime.onMessage.addListener((message: unknown, sender, respond) => {
     async (error: unknown) => {
       await logging;
       logger.error('Could not complete proxy mode request.');
-      const code = error instanceof Error && ['conflict', 'invalid-profile', 'active-profile', 'invalid-rule', 'referenced-profile'].includes(error.message)
+      const code = error instanceof Error && ['conflict', 'invalid-profile', 'active-profile', 'invalid-rule', 'referenced-profile', 'invalid-backup', 'import-warning'].includes(error.message)
         ? error.message : 'error';
       respond({ ok: false, code });
     },

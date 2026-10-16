@@ -121,3 +121,24 @@ test('saves domain rules, applies automatic routing, and protects referenced pro
   await expect(controller.handle({ type: 'save-rules', revision: 3 })).rejects.toThrow('invalid-rule');
   expect(stored).toMatchObject({ revision: 3 });
 });
+
+test('validates imported backups before replacing current configuration and checks conflicts', async () => {
+  let stored: unknown = 'direct';
+  const controller = createModeController({ read: async () => stored, write: async config => { stored = config; }, apply: async () => {} });
+  await expect(controller.handle({ type: 'import-config', revision: 0, text: '{' })).rejects.toThrow();
+  expect(stored).toBe('direct');
+  const backup = JSON.stringify({ ...parseConfig('system'), revision: 99 });
+  await controller.handle({ type: 'import-config', revision: 0, text: backup });
+  expect(stored).toMatchObject({ mode: 'system', revision: 1 });
+  await expect(controller.handle({ type: 'import-config', revision: 0, text: backup })).rejects.toThrow('conflict');
+});
+
+test('requires explicit confirmation before importing only supported legacy content', async () => {
+  let stored: unknown = 'direct';
+  const controller = createModeController({ read: async () => stored, write: async config => { stored = config; }, apply: async () => {} });
+  const text = JSON.stringify({ schemaVersion: 2, '+pac': { profileType: 'PacProfile', pacScript: 'unsupported' } });
+  await expect(controller.handle({ type: 'import-config', revision: 0, text })).rejects.toThrow('import-warning');
+  expect(stored).toBe('direct');
+  await controller.handle({ type: 'import-config', revision: 0, text, allowPartial: true });
+  expect(stored).toMatchObject({ mode: 'system', profiles: [], revision: 1 });
+});

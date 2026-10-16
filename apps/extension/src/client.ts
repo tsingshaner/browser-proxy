@@ -7,6 +7,6 @@ export async function requestConfig(message: Record<string, unknown> = { type: '
 }
 
 export function errorKey(error: unknown): string {
-  return error instanceof Error && ['conflict', 'invalid-profile', 'active-profile', 'invalid-rule', 'referenced-profile'].includes(error.message)
+  return error instanceof Error && ['conflict', 'invalid-profile', 'active-profile', 'invalid-rule', 'referenced-profile', 'invalid-backup', 'import-warning'].includes(error.message)
     ? error.message : 'error';
 }
