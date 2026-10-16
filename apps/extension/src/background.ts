@@ -11,13 +11,20 @@ const logging = configure({
 });
 
 const controller = createModeController({
-  read: async () => (await chrome.storage.local.get('proxyMode')).proxyMode,
-  write: async (mode) => { await chrome.storage.local.set({ proxyMode: mode }); },
-  apply: async (mode) => {
+  read: async () => {
+    const stored = await chrome.storage.local.get(['proxyConfig', 'proxyMode']);
+    return stored.proxyConfig ?? stored.proxyMode;
+  },
+  write: async (config) => { await chrome.storage.local.set({ proxyConfig: config }); },
+  apply: async (config) => {
     const current = await chrome.proxy.settings.get({ incognito: false });
     if (current.levelOfControl === 'controlled_by_other_extensions' ||
         current.levelOfControl === 'not_controllable') throw new Error('proxy-unavailable');
-    await chrome.proxy.settings.set({ value: { mode }, scope: 'regular' });
+    const profile = config.profiles.find(p => p.id === config.mode);
+    const value: chrome.proxy.ProxyConfig = profile
+      ? { mode: 'fixed_servers', rules: { singleProxy: { scheme: profile.scheme, host: profile.host, port: profile.port } } }
+      : { mode: config.mode as 'direct' | 'system' };
+    await chrome.proxy.settings.set({ value, scope: 'regular' });
   },
 });
 void controller.ready.catch(async () => {
@@ -28,11 +35,13 @@ void controller.ready.catch(async () => {
 chrome.runtime.onMessage.addListener((message: unknown, sender, respond) => {
   if (sender.id !== chrome.runtime.id) return false;
   void controller.handle(message).then(
-    (state) => respond({ ok: true, ...state }),
-    async () => {
+    (config) => respond({ ok: true, config }),
+    async (error: unknown) => {
       await logging;
       logger.error('Could not complete proxy mode request.');
-      respond({ ok: false });
+      const code = error instanceof Error && ['conflict', 'invalid-profile', 'active-profile'].includes(error.message)
+        ? error.message : 'error';
+      respond({ ok: false, code });
     },
   );
   return true;

@@ -115,7 +115,10 @@ resolution mechanism until the React migration removes them.
 
 The new `@browser-proxy/core` and `@browser-proxy/extension` workspaces coexist
 with the old packages. Load `apps/extension/dist` for the new Chromium extension (Chrome 120+).
-It currently supports direct/system mode switching, with isolated local storage;
+It supports direct/system modes and HTTP, HTTPS, SOCKS4, and SOCKS5 fixed proxies.
+Use the popup’s Manage proxies button to create or edit servers in the options page.
+Concurrent edits are rejected with a reload prompt; switch away before deleting an active proxy.
+New configuration uses versioned, isolated local storage;
 legacy profiles are not yet imported. Load only one proxy extension at a time
 to avoid competing for proxy control. Existing storage keys
 and browser protocols are unchanged. Internal dependencies use `workspace:*`.

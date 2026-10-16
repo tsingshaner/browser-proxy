@@ -6,6 +6,11 @@
     "strict": true,
     "noEmit": true,
     "skipLibCheck": true,
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": true,
+    "paths": {
+      "@browser-proxy/core": [
+        "./packages/core/src/index.ts"
+      ]
+    }
   }
 }

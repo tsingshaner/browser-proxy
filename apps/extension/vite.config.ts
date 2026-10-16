@@ -12,6 +12,7 @@ export default defineConfig({
     default_locale: 'en',
     minimum_chrome_version: '120',
     permissions: ['proxy', 'storage'],
+    options_ui: { page: 'options.html', open_in_tab: true },
     action: { default_popup: 'popup.html', default_title: 'Browser Proxy' },
     background: { service_worker: 'src/background.ts', type: 'module' },
   } })],
