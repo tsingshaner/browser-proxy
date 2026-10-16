@@ -8,3 +8,5 @@ package-lock.json
 /apps/*/dist/
 /packages/*/dist/
 /coverage/
+
+apps/extension/dist-firefox/

@@ -1,3 +1,4 @@
+import { api } from './browser-api';
 import { useEffect, useState, type FormEvent } from 'react';
 import { createRoot } from 'react-dom/client';
 import { useTranslation } from 'react-i18next';
@@ -83,6 +84,6 @@ const Options = () => {
   </main>;
 };
 void translationsReady.then(() => {
-  document.documentElement.lang = chrome.i18n.getUILanguage();
+  document.documentElement.lang = api.i18n.getUILanguage();
   createRoot(document.getElementById('root')!).render(<Options />);
 });

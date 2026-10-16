@@ -13,8 +13,9 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "typecheck": "tsc -p tsconfig.json"
+    "build": "vite build && vite build --mode firefox",
+    "typecheck": "tsc -p tsconfig.json",
+    "dev:firefox": "vite --mode firefox"
   },
   "devDependencies": {
     "vite": "^8.3.0",

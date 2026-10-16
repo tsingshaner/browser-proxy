@@ -1,12 +1,15 @@
+import { api } from './browser-api';
 import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
 export const translationsReady = i18next.use(initReactI18next).init({
-  lng: chrome.i18n.getUILanguage(),
+  lng: api.i18n.getUILanguage(),
   fallbackLng: 'en',
   interpolation: { escapeValue: false },
   resources: {
     en: { translation: {
+      footerFirefox: 'Proxy settings also apply to private windows.',
+      'private-permission': 'Firefox requires private-window access to change proxy settings. Allow this extension in private windows in about:addons, then retry.',
       backup: 'Backup & restore', exportBackup: 'Export JSON', importBackup: 'Choose JSON or legacy .bak (up to 5 MB)',
       backupSensitive: 'Backups include proxy passwords in plain text. Keep exported files private.',
       importSummary: '{{profiles}} proxies and {{rules}} rules are ready to import.',
@@ -36,6 +39,8 @@ export const translationsReady = i18next.use(initReactI18next).init({
       retry: 'Retry', footer: 'Changes apply to regular browsing.',
     } },
     zh: { translation: {
+      footerFirefox: '代理设置也会应用于隐私窗口。',
+      'private-permission': 'Firefox 修改代理需要隐私窗口权限，请在 about:addons 中允许此扩展在隐私窗口运行后重试。',
       backup: '备份与恢复', exportBackup: '导出 JSON', importBackup: '选择 JSON 或旧版 .bak 文件（最大 5 MB）',
       backupSensitive: '备份包含明文代理密码，请妥善保管导出文件。',
       importSummary: '准备导入 {{profiles}} 个代理和 {{rules}} 条规则。',

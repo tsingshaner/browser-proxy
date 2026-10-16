@@ -105,8 +105,9 @@ GitHub network access is required. `pnpm legacy:assets` can prefetch those asset
 The pnpm lockfile covers npm dependencies; legacy Bower assets retain their old
 resolution mechanism until the React migration removes them.
 
-- `pnpm build:modern`: build the core package and new Chromium extension.
-- `pnpm --filter @browser-proxy/extension dev`: run the CRXJS development server.
+- `pnpm build:modern`: build the core package and new Chromium/Firefox extensions.
+- `pnpm --filter @browser-proxy/extension dev`: run the Chromium CRXJS development server.
+- `pnpm --filter @browser-proxy/extension dev:firefox`: run the Firefox CRXJS development server.
 - `pnpm build:legacy`: build the existing extension without `npm link`.
 - `pnpm test:modern`: run Vitest behavior checks.
 - `pnpm test:legacy`: run the existing PAC and configuration-sync suites.
@@ -115,6 +116,11 @@ resolution mechanism until the React migration removes them.
 
 The new `@browser-proxy/core` and `@browser-proxy/extension` workspaces coexist
 with the old packages. Load `apps/extension/dist` for the new Chromium extension (Chrome 120+).
+For Firefox 140+, load `apps/extension/dist-firefox/manifest.json` via
+`about:debugging` → This Firefox → Load Temporary Add-on. In `about:addons`,
+allow Browser Proxy to run in private windows: Firefox requires this permission
+to change proxy settings, which affect both regular and private windows.
+Temporary installation is for development; normal distribution requires Mozilla signing.
 It supports direct/system modes and HTTP, HTTPS, SOCKS4, and SOCKS5 fixed proxies.
 HTTP/HTTPS proxy authentication is supported; credentials stay in local extension storage.
 The popup reports rejected credentials. Chromium does not support SOCKS username/password authentication.

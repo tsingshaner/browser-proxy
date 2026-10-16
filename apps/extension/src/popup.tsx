@@ -1,3 +1,4 @@
+import { api, isFirefox } from './browser-api';
 import { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { useTranslation } from 'react-i18next';
@@ -14,12 +15,12 @@ const ModeSwitcher = () => {
   const [error, setError] = useState('');
   const [authFailed, setAuthFailed] = useState(false);
   useEffect(() => {
-    void chrome.storage.session.get('authFailed').then(value => { setAuthFailed(value.authFailed === true); });
+    void api.storage.session.get('authFailed').then(value => { setAuthFailed(value.authFailed === true); });
     const listener = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
       if (area === 'session' && changes.authFailed) setAuthFailed(changes.authFailed.newValue === true);
     };
-    chrome.storage.onChanged.addListener(listener);
-    return () => { chrome.storage.onChanged.removeListener(listener); };
+    api.storage.onChanged.addListener(listener);
+    return () => { api.storage.onChanged.removeListener(listener); };
   }, []);
 
   const request = async (next?: string) => {
@@ -63,12 +64,12 @@ const Popup = () => {
     <header className="mb-6"><h1 className="text-xl font-semibold tracking-tight">{t('title')}</h1>
       <p className="mt-1 text-sm text-zinc-500">{t('subtitle')}</p></header>
     <ModeSwitcher />
-    <button className="w-full rounded-md border border-zinc-200 px-3 py-2 text-sm hover:bg-zinc-50" onClick={() => { void chrome.runtime.openOptionsPage(); }}>{t('manage')}</button>
-    <footer className="mt-2 border-t border-zinc-100 pt-4 text-[11px] text-zinc-400">{t('footer')}</footer>
+    <button className="w-full rounded-md border border-zinc-200 px-3 py-2 text-sm hover:bg-zinc-50" onClick={() => { void api.runtime.openOptionsPage(); }}>{t('manage')}</button>
+    <footer className="mt-2 border-t border-zinc-100 pt-4 text-[11px] text-zinc-400">{t(isFirefox ? 'footerFirefox' : 'footer')}</footer>
   </main>;
 };
 
 void translationsReady.then(() => {
-  document.documentElement.lang = chrome.i18n.getUILanguage();
+  document.documentElement.lang = api.i18n.getUILanguage();
   createRoot(document.getElementById('root')!).render(<Popup />);
 });
