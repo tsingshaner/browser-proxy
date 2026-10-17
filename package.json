@@ -6,22 +6,17 @@
     "node": ">=24.11.0 <25"
   },
   "scripts": {
-    "build": "pnpm run build:modern && pnpm run build:legacy",
-    "build:modern": "pnpm --filter \"@browser-proxy/*\" -r build",
-    "build:legacy": "pnpm --filter omega-build build",
-    "legacy:assets": "pnpm --filter omega-web exec bower install",
-    "test": "pnpm run test:modern && pnpm run test:legacy",
-    "test:modern": "vitest run",
-    "test:legacy": "pnpm --filter omega-pac test && pnpm --filter omega-target test",
+    "build": "pnpm --filter \"@browser-proxy/*\" -r build",
+    "dev": "pnpm --filter @browser-proxy/extension dev",
+    "dev:firefox": "pnpm --filter @browser-proxy/extension dev:firefox",
+    "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json && pnpm --filter \"@browser-proxy/*\" -r typecheck",
-    "release:legacy": "pnpm --filter omega-build release"
+    "release": "pnpm build && node scripts/package-extension.mjs"
   },
   "devDependencies": {
     "typescript": "5.9.3",
     "vitest": "5.0.4",
-    "@types/node": "^24.0.0",
-    "coffee-script": "1.12.7",
-    "omega-pac": "workspace:*"
+    "@types/node": "^24.0.0"
   },
   "type": "module"
 }

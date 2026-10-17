@@ -1,12 +1,13 @@
 node_modules
-bower_components
 package-lock.json
 *-release.zip
 *.swp
 
-# Modern workspace outputs
+# Workspace outputs
 /apps/*/dist/
 /packages/*/dist/
 /coverage/
 
 apps/extension/dist-firefox/
+
+/dist/

@@ -10,7 +10,7 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm build
-      - run: pnpm release:legacy
+      - run: pnpm release
       - store_artifacts:
           path: dist
 workflows:

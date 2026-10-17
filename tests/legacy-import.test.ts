@@ -1,11 +1,6 @@
-import { createRequire } from 'node:module';
 import { runInNewContext } from 'node:vm';
 import { expect, test } from 'vitest';
 import { inspectBackup, generatePac } from '../packages/core/src/index';
-const require = createRequire(import.meta.url);
-require('coffee-script/register');
-const { PacGenerator } = require('../omega-pac/index.coffee');
-
 test('keeps historical wildcard routing when importing a legacy switch profile', () => {
   const legacy = { schemaVersion: 2,
     '+proxy': { name: 'proxy', profileType: 'FixedProfile', fallbackProxy: { scheme: 'http', host: 'localhost', port: 8080 }, bypassList: [] },
@@ -14,10 +9,11 @@ test('keeps historical wildcard routing when importing a legacy switch profile',
       { condition: { conditionType: 'HostWildcardCondition', pattern: '**.other.com' }, profileName: 'proxy' },
     ] },
   };
-  const oldScript = PacGenerator.script(legacy, legacy['+auto']).print_to_string();
+  // Captured from the legacy generator before its removal.
+  const expected = ['PROXY localhost:8080', 'PROXY localhost:8080', 'DIRECT', 'DIRECT', 'PROXY localhost:8080'];
   const modernScript = generatePac({ ...inspectBackup(JSON.stringify(legacy)).config, mode: 'auto' });
-  for (const host of ['example.com', 'sub.example.com', 'badexample.com', 'other.com', 'sub.other.com']) {
+  for (const [index, host] of ['example.com', 'sub.example.com', 'badexample.com', 'other.com', 'sub.other.com'].entries()) {
     const result = (script: string) => runInNewContext(`${script}; FindProxyForURL(url, host)`, { url: `https://${host}/`, host });
-    expect(result(modernScript), host).toBe(result(oldScript));
+    expect(result(modernScript), host).toBe(expected[index]);
   }
 });

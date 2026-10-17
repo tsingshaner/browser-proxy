@@ -1,14 +1,7 @@
 packages:
   - 'apps/*'
   - 'packages/*'
-  - 'omega-*'
 
-# Legacy watchers and network-updated suffix data are not build inputs.
 allowBuilds:
   esbuild: true
   fsevents: false
-  tldjs: false
-
-# Grunt's transitive CoffeeScript 1.3 overrides the test compiler otherwise.
-overrides:
-  coffee-script: 1.12.7
