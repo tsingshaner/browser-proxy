@@ -22,14 +22,14 @@ export function createModeController(io: {
       if (!message || typeof message !== 'object') throw new Error('invalid-request');
       const request = message as Record<string, unknown>;
       if (request.type === 'get-config') return structuredClone(config);
-      if (!['set-mode', 'save-profile', 'delete-profile', 'save-rules', 'import-config'].includes(request.type as string)) {
+      if (!['set-mode', 'save-profile', 'delete-profile', 'save-rules', 'save-rule-profile', 'delete-rule-profile', 'import-config'].includes(request.type as string)) {
         throw new Error('invalid-request');
       }
       if (request.revision !== config.revision) throw new Error('conflict');
       let next = structuredClone(config);
       if (request.type === 'set-mode') {
         if (typeof request.mode !== 'string' ||
-            !['direct', 'system', 'auto', ...config.profiles.map(p => p.id)].includes(request.mode)) {
+            !['direct', 'system', 'auto', ...config.profiles.map(p => p.id), ...(config.ruleProfiles?.map(p => p.id) ?? [])].includes(request.mode)) {
           throw new Error('invalid-request');
         }
         next.mode = request.mode;
@@ -43,17 +43,25 @@ export function createModeController(io: {
         const preview = inspectBackup(request.text);
         if (preview.issues.length && request.allowPartial !== true) throw new Error('import-warning');
         next = { ...preview.config, revision: config.revision };
+      } else if (request.type === 'save-rule-profile') {
+        if (!request.profile || typeof request.profile !== 'object') throw new Error('invalid-rule');
+        const profile = request.profile as Record<string, unknown>;
+        const groups: unknown[] = (next.ruleProfiles ?? []).filter(p => p.id !== profile.id);
+        groups.push(profile);
+        next = parseConfig({ ...next, ruleProfiles: groups });
       } else if (request.type === 'save-rules') {
         if (!Array.isArray(request.rules) || typeof request.defaultTarget !== 'string') throw new Error('invalid-rule');
         const validated = parseConfig({ ...next, rules: request.rules, defaultTarget: request.defaultTarget });
         next.rules = validated.rules;
         next.defaultTarget = validated.defaultTarget;
       } else {
-        if (next.defaultTarget === request.id || next.rules.some(r => r.target === request.id)) throw new Error('referenced-profile');
-        if (!next.profiles.some(p => p.id === request.id)) throw new Error('invalid-request');
+        if ([next, ...(next.ruleProfiles ?? [])].some(p => p.defaultTarget === request.id || p.rules.some(r => r.target === request.id))) throw new Error('referenced-profile');
+        if (![...next.profiles, ...(next.ruleProfiles ?? [])].some(p => p.id === request.id)) throw new Error('invalid-request');
         if (request.id === next.mode) throw new Error('active-profile');
-        next.profiles = next.profiles.filter(p => p.id !== request.id);
+        if (request.type === 'delete-rule-profile') next.ruleProfiles = next.ruleProfiles?.filter(p => p.id !== request.id);
+        else next.profiles = next.profiles.filter(p => p.id !== request.id);
       }
+      next = parseConfig(next);
       next.revision++;
       await io.apply(next);
       try {

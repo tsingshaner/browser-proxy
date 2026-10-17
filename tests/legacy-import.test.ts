@@ -15,7 +15,7 @@ test('keeps historical wildcard routing when importing a legacy switch profile',
     ] },
   };
   const oldScript = PacGenerator.script(legacy, legacy['+auto']).print_to_string();
-  const modernScript = generatePac(inspectBackup(JSON.stringify(legacy)).config);
+  const modernScript = generatePac({ ...inspectBackup(JSON.stringify(legacy)).config, mode: 'auto' });
   for (const host of ['example.com', 'sub.example.com', 'badexample.com', 'other.com', 'sub.other.com']) {
     const result = (script: string) => runInNewContext(`${script}; FindProxyForURL(url, host)`, { url: `https://${host}/`, host });
     expect(result(modernScript), host).toBe(result(oldScript));

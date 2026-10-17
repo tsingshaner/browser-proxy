@@ -142,3 +142,23 @@ test('requires explicit confirmation before importing only supported legacy cont
   await controller.handle({ type: 'import-config', revision: 0, text, allowPartial: true });
   expect(stored).toMatchObject({ mode: 'system', profiles: [], revision: 1 });
 });
+
+describe('nested profile editing', () => {
+  test('protects references, detects stale edits, and preserves existing automatic rules', async () => {
+    const initial = parseConfig({ version: 1, revision: 0, mode: 'auto', profiles: [], rules: [{ domain: 'example.com', target: 'direct' }], defaultTarget: 'direct' });
+    let stored = initial;
+    const controller = createModeController({ read: async () => stored, write: async c => { stored = c; }, apply: async () => {} });
+    await controller.ready;
+    const group = { id: 'group', name: 'Group', rules: [], defaultTarget: 'direct' };
+    await controller.handle({ type: 'save-rule-profile', revision: 0, profile: group });
+    expect(stored.rules).toEqual(initial.rules);
+    await expect(controller.handle({ type: 'save-rule-profile', revision: 0, profile: group })).rejects.toThrow('conflict');
+    await controller.handle({ type: 'save-rules', revision: 1, rules: [], defaultTarget: 'group' });
+    await expect(controller.handle({ type: 'delete-rule-profile', revision: 2, id: 'group' })).rejects.toThrow('referenced-profile');
+    await expect(controller.handle({ type: 'save-rule-profile', revision: 2, profile: { ...group, defaultTarget: 'auto' } })).rejects.toThrow('invalid-rule');
+    expect(stored.revision).toBe(2);
+    await controller.handle({ type: 'save-rules', revision: 2, rules: [], defaultTarget: 'direct' });
+    await controller.handle({ type: 'delete-rule-profile', revision: 3, id: 'group' });
+    expect(stored.ruleProfiles).toEqual([]);
+  });
+});

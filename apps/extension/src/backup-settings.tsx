@@ -60,7 +60,7 @@ export const BackupSettings = () => {
     <div aria-live="polite">{error && <p role="alert" className="text-sm text-red-700">{t(error)}</p>}
       {saved && <p className="text-sm text-zinc-600">{t('saved')}</p>}</div>
     {preview && <div className="space-y-4 rounded-xl border border-zinc-200 p-5">
-      <p className="text-sm">{t('importSummary', { profiles: preview.report.config.profiles.length, rules: preview.report.config.rules.length })}</p>
+      <p className="text-sm">{t('importSummary', { profiles: preview.report.config.profiles.length, rules: preview.report.config.rules.length + (preview.report.config.ruleProfiles ?? []).reduce((sum, p) => sum + p.rules.length, 0), groups: preview.report.config.ruleProfiles?.length ?? 0 })}</p>
       {preview.report.legacy && <p className="text-sm text-zinc-600">{t('legacyImport')}</p>}
       {preview.report.issues.length > 0 && <>
         <p className="text-sm font-medium text-amber-800">{t('importWarning')}</p>

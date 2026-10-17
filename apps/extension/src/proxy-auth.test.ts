@@ -1,3 +1,4 @@
+import { parseConfig } from '@browser-proxy/core';
 import { describe, expect, test } from 'vitest';
 import { createProxyAuth } from './proxy-auth';
 import type { ProxyConfig } from '@browser-proxy/core';
@@ -59,4 +60,14 @@ test('keeps retry limits per proxy when a redirect reuses the request ID', async
   expect(await auth.respond(first)).toHaveProperty('authCredentials');
   expect(await auth.respond({ ...challenge, url: 'https://b.test/', challenger: { host: 'proxy.example', port: 8081 } })).toHaveProperty('authCredentials');
   expect(await auth.respond(first)).toEqual({ cancel: true });
+});
+
+test('authenticates only the proxy reached through a nested profile', async () => {
+  const config = parseConfig({ version: 1, revision: 0, mode: 'nested', profiles: [
+    { id: 'office', name: 'Office', scheme: 'http', host: 'localhost', port: 8080, auth: { username: 'user', password: 'secret' } },
+  ], rules: [], defaultTarget: 'direct', ruleProfiles: [{ id: 'nested', name: 'Nested', rules: [{ domain: 'example.com', target: 'office' }], defaultTarget: 'direct' }] });
+  const auth = createProxyAuth(async () => config, async () => {});
+  const challenge = { isProxy: true, requestId: '1', challenger: { host: 'localhost', port: 8080 } };
+  expect(await auth.respond({ ...challenge, url: 'http://other.test/' })).toEqual({});
+  expect(await auth.respond({ ...challenge, url: 'http://example.com/' })).toEqual({ authCredentials: { username: 'user', password: 'secret' } });
 });

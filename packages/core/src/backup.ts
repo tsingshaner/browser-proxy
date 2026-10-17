@@ -21,13 +21,17 @@ export function inspectBackup(text: string): ImportPreview {
         if (!allowed.includes(key)) issues.push({ path: `${path}${key}`, reason: 'unsupported-setting' });
       }
     };
-    unknownFields(source, '', ['version', 'revision', 'mode', 'profiles', 'rules', 'defaultTarget']);
+    unknownFields(source, '', ['version', 'revision', 'mode', 'profiles', 'rules', 'defaultTarget', 'ruleProfiles']);
     (source.profiles as Record<string, unknown>[]).forEach((profile, index) => {
       unknownFields(profile, `profiles[${index}].`, ['id', 'name', 'scheme', 'host', 'port', 'auth']);
       unknownFields(profile.auth, `profiles[${index}].auth.`, ['username', 'password']);
     });
     if (Array.isArray(source.rules)) source.rules.forEach((rule, index) => {
       unknownFields(rule, `rules[${index}].`, ['domain', 'target']);
+    });
+    if (Array.isArray(source.ruleProfiles)) source.ruleProfiles.forEach((group, index) => {
+      unknownFields(group, `ruleProfiles[${index}].`, ['id', 'name', 'rules', 'defaultTarget']);
+      if (Array.isArray(group.rules)) group.rules.forEach((rule: unknown, n: number) => unknownFields(rule, `ruleProfiles[${index}].rules[${n}].`, ['domain', 'target']));
     });
     return { config, issues, legacy: false };
   }
@@ -43,7 +47,7 @@ export function inspectBackup(text: string): ImportPreview {
     if (!key.startsWith('+')) { report(key, 'unsupported-setting'); continue; }
     if (!value || typeof value !== 'object' || Array.isArray(value)) { report(key, 'unsupported-profile'); continue; }
     const p = value as Record<string, unknown>;
-    if (p.profileType === 'SwitchProfile') { switches.push([key, p]); continue; }
+    if (['SwitchProfile', 'VirtualProfile'].includes(p.profileType as string)) { switches.push([key, p]); continue; }
     if (p.profileType !== 'FixedProfile' || p.proxyForHttp || p.proxyForHttps || p.proxyForFtp) {
       report(key, 'unsupported-profile', p.profileType); continue;
     }
@@ -59,18 +63,30 @@ export function inspectBackup(text: string): ImportPreview {
       if (p.auth !== undefined && (!auth || Object.keys(auth).some(k => !['fallbackProxy', 'all'].includes(k)))) report(`${key}.auth`, 'unsupported-setting');
     } catch { report(key, 'unsupported-profile', p.profileType); }
   }
+  const singleSwitch = switches.length === 1 && switches[0]![1].profileType === 'SwitchProfile';
+  const accepted = switches.filter(([key, p], index) => {
+    if (typeof p.name !== 'string' || !p.name.trim() || p.name.length > 80 || names.has(p.name) || ['direct', 'system'].includes(p.name)) {
+      report(key, 'unsupported-profile', p.profileType); return false;
+    }
+    names.set(p.name, singleSwitch ? 'auto' : `legacy-rule-${index}`);
+    return true;
+  });
   const target = (name: unknown): string | undefined => name === 'direct' ? 'direct' : typeof name === 'string' ? names.get(name) : undefined;
-  // Multiple/nested switch profiles need their own migration; never pick one implicitly.
-  if (switches.length !== 1) {
-    for (const [key, p] of switches) report(key, 'unsupported-profile', p.profileType);
-  } else {
-    const [key, p] = switches[0]!;
-    const fallback = target(p.defaultProfileName);
-    if (!fallback || !Array.isArray(p.rules)) {
-      report(key, 'unsupported-profile', p.profileType);
-    } else {
-      config.defaultTarget = fallback;
-      p.rules.forEach((value: unknown, index: number) => {
+  // Remove unusable nodes and their dependents before converting supported rules.
+  const valid = new Map(accepted);
+  let removed = true;
+  while (removed) {
+    removed = false;
+    for (const [key, p] of valid) {
+      if (!target(p.defaultProfileName) || (p.profileType === 'SwitchProfile' && !Array.isArray(p.rules))) {
+        valid.delete(key); names.delete(p.name as string); report(key, 'unsupported-profile', p.profileType); removed = true;
+      }
+    }
+  }
+  for (const [key, p] of valid) {
+    const group = { id: names.get(p.name as string)!, name: p.name as string, defaultTarget: target(p.defaultProfileName)!, rules: [] as DomainRule[] };
+    if (p.profileType === 'SwitchProfile') {
+      (p.rules as unknown[]).forEach((value: unknown, index: number) => {
         const path = `${key}.rules[${index}]`;
         const rule = value && typeof value === 'object' ? value as Record<string, unknown> : {};
         const condition = rule.condition && typeof rule.condition === 'object' ? rule.condition as Record<string, unknown> : {};
@@ -85,10 +101,12 @@ export function inspectBackup(text: string): ImportPreview {
             domains = [domain, `*.${domain}`];
           } else domains = [normalizeDomain(pattern)];
           const rules: DomainRule[] = domains.map(domain => ({ domain, target: destination }));
-          config.rules.push(...rules);
+          group.rules.push(...rules);
         } catch { report(path, 'unsupported-rule', condition.conditionType); }
       });
     }
+    if (singleSwitch) { config.rules = group.rules; config.defaultTarget = group.defaultTarget; }
+    else (config.ruleProfiles ??= []).push(group);
   }
   return { config: parseConfig(config), issues, legacy: true };
 }

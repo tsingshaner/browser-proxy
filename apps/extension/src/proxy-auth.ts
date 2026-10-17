@@ -8,7 +8,7 @@ export function createProxyAuth(read: () => Promise<ProxyConfig>, feedback: (fai
     async respond(details: Challenge): Promise<{ authCredentials?: { username: string; password: string }; cancel?: boolean }> {
       if (!details.isProxy) return {};
       const config = await read();
-      const target = config.mode === 'auto' && details.url ? resolveTarget(config, new URL(details.url).hostname) : config.mode;
+      const target = details.url ? resolveTarget(config, new URL(details.url).hostname) : config.mode;
       const profile = config.profiles.find(p => p.id === target);
       if (!profile?.auth || !['http', 'https'].includes(profile.scheme) ||
           profile.host.toLowerCase() !== details.challenger.host.replace(/^\[|\]$/g, '').toLowerCase() ||

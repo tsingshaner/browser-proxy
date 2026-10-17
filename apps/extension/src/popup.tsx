@@ -42,12 +42,12 @@ const ModeSwitcher = () => {
     {authFailed && <p role="alert" className="mb-4 text-sm text-red-700">{t('authFailed')}</p>}
     <fieldset disabled={busy} className="space-y-3">
       <legend className="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-500">{t('mode')}</legend>
-      {['direct', 'system', 'auto', ...(config?.profiles.map(p => p.id) ?? [])].map((value) => <label key={value}
+      {['direct', 'system', 'auto', ...(config?.profiles.map(p => p.id) ?? []), ...(config?.ruleProfiles?.map(p => p.id) ?? [])].map((value) => <label key={value}
         className={`flex cursor-pointer items-center gap-3 rounded-xl border p-4 transition-colors focus-within:ring-2 focus-within:ring-zinc-500 ${mode === value ? 'border-zinc-900 bg-zinc-50' : 'border-zinc-200 hover:bg-zinc-50'} ${busy ? 'opacity-60' : ''}`}>
         <input type="radio" name="mode" value={value} checked={mode === value}
           onChange={() => { void request(value); }} className="size-4 accent-zinc-900" />
-        <span><span className="block text-sm font-medium">{config?.profiles.find(p => p.id === value)?.name ?? t(value)}</span>
-          <span className="mt-1 block text-xs text-zinc-500">{config?.profiles.find(p => p.id === value)?.host ?? t(`${value}Hint`)}</span></span>
+        <span><span className="block text-sm font-medium">{[...(config?.profiles ?? []), ...(config?.ruleProfiles ?? [])].find(p => p.id === value)?.name ?? t(value)}</span>
+          <span className="mt-1 block text-xs text-zinc-500">{config?.profiles.find(p => p.id === value)?.host ?? t(['direct', 'system'].includes(value) ? `${value}Hint` : 'autoHint')}</span></span>
       </label>)}
     </fieldset>
     <div className="mt-4 min-h-10 text-xs" aria-live="polite">
