@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { ProxyConfig } from '@browser-proxy/core';
+import { normalizeDomain, type ProxyConfig } from '@browser-proxy/core';
 import { errorKey, requestConfig } from './client';
 
 export const RulesSettings = () => {
@@ -17,7 +17,18 @@ export const RulesSettings = () => {
     } catch (error) { setError(errorKey(error)); }
     finally { setBusy(false); }
   };
-  useEffect(() => { void request(); }, []);
+  useEffect(() => {
+    void requestConfig().then(value => {
+      if (location.hash.startsWith('#rule=')) {
+        try {
+          const domain = normalizeDomain(decodeURIComponent(location.hash.slice(6)));
+          value.rules.push({ domain, target: 'direct' });
+          history.replaceState(null, '', location.pathname);
+        } catch { setError('invalid-rule'); }
+      }
+      setConfig(value);
+    }).catch(error => { setError(errorKey(error)); }).finally(() => { setBusy(false); });
+  }, []);
   const move = (index: number, direction: number) => {
     if (!config) return;
     const rules = [...config.rules];

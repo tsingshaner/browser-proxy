@@ -8,6 +8,7 @@ export const translationsReady = i18next.use(initReactI18next).init({
   interpolation: { escapeValue: false },
   resources: {
     en: { translation: {
+      requests: 'Current tab requests', requestsHint: 'Recent 1,000 requests in this background session. A failure does not necessarily mean a proxy problem.', monitorError: 'Could not read request status.', pending: 'Pending', completed: 'Completed', failed: 'Failed', timeout: 'Over 30 seconds', ruleForDomain: 'Add rule: {{domain}}',
       footerFirefox: 'Proxy settings also apply to private windows.',
       'private-permission': 'Firefox requires private-window access to change proxy settings. Allow this extension in private windows in about:addons, then retry.',
       backup: 'Backup & restore', exportBackup: 'Export JSON', importBackup: 'Choose JSON or legacy .bak (up to 5 MB)',
@@ -39,6 +40,7 @@ export const translationsReady = i18next.use(initReactI18next).init({
       retry: 'Retry', footer: 'Changes apply to regular browsing.',
     } },
     zh: { translation: {
+      requests: '当前标签页请求', requestsHint: '本次后台会话最近 1,000 条请求。请求失败不一定由代理引起。', monitorError: '无法读取请求状态。', pending: '进行中', completed: '已完成', failed: '失败', timeout: '超过 30 秒', ruleForDomain: '添加规则：{{domain}}',
       footerFirefox: '代理设置也会应用于隐私窗口。',
       'private-permission': 'Firefox 修改代理需要隐私窗口权限，请在 about:addons 中允许此扩展在隐私窗口运行后重试。',
       backup: '备份与恢复', exportBackup: '导出 JSON', importBackup: '选择 JSON 或旧版 .bak 文件（最大 5 MB）',

@@ -6,6 +6,7 @@ import { translationsReady } from './i18n';
 import type { ProxyConfig } from '@browser-proxy/core';
 import { requestConfig, errorKey } from './client';
 import './style.css';
+import { RequestStatus } from './request-status';
 
 const ModeSwitcher = () => {
   const { t } = useTranslation();
@@ -64,6 +65,7 @@ const Popup = () => {
     <header className="mb-6"><h1 className="text-xl font-semibold tracking-tight">{t('title')}</h1>
       <p className="mt-1 text-sm text-zinc-500">{t('subtitle')}</p></header>
     <ModeSwitcher />
+    <RequestStatus />
     <button className="w-full rounded-md border border-zinc-200 px-3 py-2 text-sm hover:bg-zinc-50" onClick={() => { void api.runtime.openOptionsPage(); }}>{t('manage')}</button>
     <footer className="mt-2 border-t border-zinc-100 pt-4 text-[11px] text-zinc-400">{t(isFirefox ? 'footerFirefox' : 'footer')}</footer>
   </main>;

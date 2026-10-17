@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => {
         id: 'browser-proxy@tsingshaner', strict_min_version: '140.0',
         data_collection_permissions: { required: ['none'] },
       } } } : { minimum_chrome_version: '120' }),
-      permissions: ['proxy', 'storage', 'webRequest', 'webRequestAuthProvider'],
+      permissions: ['proxy', 'storage', 'webRequest', 'webRequestAuthProvider', 'webNavigation'],
       host_permissions: ['<all_urls>'],
       options_ui: { page: 'options.html', open_in_tab: true },
       action: { default_popup: 'popup.html', default_title: 'Browser Proxy' },
