@@ -1,3 +1,4 @@
+import { createPersistentLogs } from './persistent-logs';
 import { createRequestMonitor } from './request-monitor';
 import { api, isFirefox } from './browser-api';
 import { proxyValue, type FirefoxProxyValue } from './proxy-settings';
@@ -5,15 +6,18 @@ import { configure, getConsoleSink, getLogger } from '@logtape/logtape';
 import { createProxyAuth } from './proxy-auth';
 import { createModeController } from './mode-controller';
 
+const logs = createPersistentLogs();
 const monitor = createRequestMonitor();
 const logger = getLogger(['browser-proxy']);
 const logging = configure({
-  sinks: { console: getConsoleSink() },
+  sinks: { console: getConsoleSink(), persistent: logs.sink },
   loggers: [
-    { category: ['browser-proxy'], lowestLevel: 'info', sinks: ['console'] },
+    { category: ['browser-proxy'], lowestLevel: 'info', sinks: ['console', 'persistent'] },
     { category: ['logtape', 'meta'], lowestLevel: 'warning', sinks: ['console'] },
   ],
 });
+
+void logging.then(() => { logger.info('Background initialized.'); });
 
 const controller = createModeController({
   read: async () => {
@@ -37,6 +41,14 @@ void controller.ready.catch(async () => {
 
 api.runtime.onMessage.addListener((message: unknown, sender, respond) => {
   if (sender.id !== api.runtime.id) return false;
+  if (message && typeof message === 'object' && 'type' in message && ['get-logs', 'clear-logs'].includes(message.type as string)) {
+    void (async () => {
+      await logging;
+      if (message.type === 'clear-logs') await logs.clear();
+      return logs.read();
+    })().then(value => { respond({ ok: true, ...value }); }, () => { respond({ ok: false, code: 'logs-unavailable' }); });
+    return true;
+  }
   if (message && typeof message === 'object' && 'type' in message && message.type === 'get-requests') {
     const tabId = 'tabId' in message ? message.tabId : undefined;
     respond(Number.isInteger(tabId) && (tabId as number) >= 0
@@ -46,6 +58,7 @@ api.runtime.onMessage.addListener((message: unknown, sender, respond) => {
   void controller.handle(message).then(
     async (config) => {
       if (message && typeof message === 'object' && 'type' in message && message.type !== 'get-config') {
+        logger.info('Proxy configuration applied.');
         await api.storage.session.set({ authFailed: false }).catch(() => undefined);
       }
       respond({ ok: true, config });

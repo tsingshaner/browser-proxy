@@ -8,6 +8,7 @@ export const translationsReady = i18next.use(initReactI18next).init({
   interpolation: { escapeValue: false },
   resources: {
     en: { translation: {
+      logs: 'Diagnostic logs', logsHint: 'Retained for 30 days, up to 5,000 entries / 5 MB. Showing the latest 200; export includes all retained entries. Legacy logs are not copied: export them in the old extension before upgrading.', refreshLogs: 'Refresh logs', exportLogs: 'Export logs', clearLogs: 'Clear logs', 'logs-unavailable': 'Log storage is unavailable. Proxy switching remains available; retry to recover.',
       unsavedRules: 'Save or reload to discard changes before switching rule profiles.', ruleProfile: 'Rule profile', newRuleProfile: 'New rule profile',
       requests: 'Current tab requests', requestsHint: 'Recent 1,000 requests in this background session. A failure does not necessarily mean a proxy problem.', monitorError: 'Could not read request status.', pending: 'Pending', completed: 'Completed', failed: 'Failed', timeout: 'Over 30 seconds', ruleForDomain: 'Add rule: {{domain}}',
       footerFirefox: 'Proxy settings also apply to private windows.',
@@ -41,6 +42,7 @@ export const translationsReady = i18next.use(initReactI18next).init({
       retry: 'Retry', footer: 'Changes apply to regular browsing.',
     } },
     zh: { translation: {
+      logs: '诊断日志', logsHint: '保留最近 30 天，最多 5,000 条 / 5 MB。显示最新 200 条，导出包含全部保留记录。旧日志不会自动复制，请在升级前从旧版导出。', refreshLogs: '刷新日志', exportLogs: '导出日志', clearLogs: '清空日志', 'logs-unavailable': '日志存储不可用，代理切换不受影响，请重试。',
       unsavedRules: '请先保存，或重新加载以放弃编辑，再切换规则情景模式。', ruleProfile: '规则情景模式', newRuleProfile: '新建规则情景模式',
       requests: '当前标签页请求', requestsHint: '本次后台会话最近 1,000 条请求。请求失败不一定由代理引起。', monitorError: '无法读取请求状态。', pending: '进行中', completed: '已完成', failed: '失败', timeout: '超过 30 秒', ruleForDomain: '添加规则：{{domain}}',
       footerFirefox: '代理设置也会应用于隐私窗口。',

@@ -3,6 +3,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { createRoot } from 'react-dom/client';
 import { useTranslation } from 'react-i18next';
 import type { ProxyConfig, ProxyProfile } from '@browser-proxy/core';
+import { LogSettings } from './log-settings';
 import { BackupSettings } from './backup-settings';
 import { RulesSettings } from './rules-settings';
 import { translationsReady } from './i18n';
@@ -78,9 +79,9 @@ const Options = () => {
   const { t } = useTranslation();
   const [page, setPage] = useState(location.hash.startsWith('#rule=') ? 'rulesTitle' : 'profiles');
   return <main className="mx-auto max-w-2xl px-6 py-12 text-zinc-950">
-    <nav className="mb-8 flex gap-3">{['profiles', 'rulesTitle', 'backup'].map(value => <button key={value} className={button}
+    <nav className="mb-8 flex gap-3">{['profiles', 'rulesTitle', 'backup', 'logs'].map(value => <button key={value} className={button}
       aria-pressed={page === value} onClick={() => { setPage(value); }}>{t(value)}</button>)}</nav>
-    {page === 'profiles' ? <ProxySettings /> : page === 'rulesTitle' ? <RulesSettings /> : <BackupSettings />}
+    {page === 'profiles' ? <ProxySettings /> : page === 'rulesTitle' ? <RulesSettings /> : page === 'backup' ? <BackupSettings /> : <LogSettings />}
   </main>;
 };
 void translationsReady.then(() => {
