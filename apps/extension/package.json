@@ -10,12 +10,17 @@
     "dev:firefox": "vite --mode firefox"
   },
   "dependencies": {
+    "@base-ui/react": "^1.9.0",
     "@browser-proxy/core": "workspace:*",
     "@logtape/logtape": "^2.4.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "i18next": "^26.4.0",
+    "lucide-react": "^1.57.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-i18next": "^17.0.0"
+    "react-i18next": "^17.0.0",
+    "tailwind-merge": "^3.7.0"
   },
   "devDependencies": {
     "@crxjs/vite-plugin": "^3.0.0",

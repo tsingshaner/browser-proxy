@@ -27,19 +27,32 @@ export default defineConfig(({ mode }) => {
                     id: 'browser-proxy@tsingshaner',
                     strict_min_version: '140.0'
                   }
+                },
+                sidebar_action: {
+                  default_panel: 'options.html',
+                  default_title: 'Browser Proxy',
+                  open_at_install: false
                 }
               }
-            : { minimum_chrome_version: '120' }),
+            : { minimum_chrome_version: '120', side_panel: { default_path: 'options.html' } }),
           action: { default_popup: 'popup.html', default_title: 'Browser Proxy' },
           background: firefox
             ? { scripts: ['src/background.ts'], type: 'module' }
             : { service_worker: 'src/background.ts', type: 'module' },
           host_permissions: ['<all_urls>'],
           options_ui: { open_in_tab: true, page: 'options.html' },
-          permissions: ['proxy', 'storage', 'webRequest', 'webRequestAuthProvider', 'webNavigation']
+          permissions: [
+            'proxy',
+            'storage',
+            'webRequest',
+            'webRequestAuthProvider',
+            'webNavigation',
+            ...(firefox ? [] : ['sidePanel'])
+          ]
         }
         // biome-ignore-end lint/style/useNamingConvention: Browser manifest schema ends here.
       })
-    ]
+    ],
+    resolve: { alias: { '@': new URL('./src', import.meta.url).pathname } }
   }
 })

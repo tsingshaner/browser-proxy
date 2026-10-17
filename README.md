@@ -1,7 +1,7 @@
 # Browser Proxy
 
 A Manifest V3 proxy extension for Chromium and Firefox. Built with TypeScript,
-React, CRXJS, Tailwind CSS, i18next and LogTape in a pnpm workspace.
+React, CRXJS, shadcn/ui (Base UI), Tailwind CSS, i18next and LogTape in a pnpm workspace.
 
 ## Develop and build
 
@@ -29,10 +29,24 @@ Browser Proxy in private windows: Firefox requires this permission to change
 proxy settings, which affect regular and private windows. Normal Firefox
 installation requires Mozilla signing; temporary installation is for development.
 
+## UI components
+
+The popup and settings use the shadcn/ui Base Nova components in
+`apps/extension/src/components/ui`, backed by `@base-ui/react`. Shared theme
+tokens live in `src/style.css`. All extension pages follow the system light/dark
+appearance automatically, including native form controls; `components.json` configures future shadcn additions.
+Native Select preserves browser form submission; tabs and mode radios use Base UI
+keyboard and focus behavior. Component sources are adapted from the
+[official registry](https://ui.shadcn.com/docs/components/base/button), with the
+[MIT notice](apps/extension/public/THIRD-PARTY-NOTICES.txt) included in both builds.
+
 ## Configure
 
 Manage fixed HTTP, HTTPS, SOCKS4 and SOCKS5 proxies in settings, then select a
-connection in the popup. HTTP/HTTPS proxy credentials are stored locally and sent
+connection in the popup. Choose **Open settings in side panel** to keep the full
+configuration page beside the current site (Chromium side panel or Firefox sidebar).
+**Manage proxies** still opens settings in a tab. Both views share the same saved
+configuration and revision checks. HTTP/HTTPS proxy credentials are stored locally and sent
 only to the selected proxy's authentication challenge. SOCKS authentication is not
 supported. The popup reports rejected credentials.
 

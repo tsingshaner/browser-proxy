@@ -3,6 +3,8 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { errorKey, requestConfig } from './client'
+import { Button } from './components/ui/button'
+import { Input } from './components/ui/input'
 
 export const BackupSettings = () => {
   const { t } = useTranslation()
@@ -10,7 +12,6 @@ export const BackupSettings = () => {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [saved, setSaved] = useState(false)
-  const button = 'rounded-md border border-zinc-200 px-3 py-2 text-sm disabled:opacity-50'
   const inspect = async (file?: File) => {
     setPreview(undefined)
     setSaved(false)
@@ -75,23 +76,24 @@ export const BackupSettings = () => {
   return (
     <section className="space-y-5">
       <h1 className="font-semibold text-2xl">{t('backup')}</h1>
-      <p className="text-sm text-zinc-600">{t('backupSensitive')}</p>
-      <button
-        className={button}
+      <p className="text-muted-foreground text-sm">{t('backupSensitive')}</p>
+      <Button
         disabled={busy}
         onClick={() => {
           void download()
         }}
         type="button"
+        variant="outline"
       >
         {t('exportBackup')}
-      </button>
-      <label className="block font-medium text-sm">
+      </Button>
+      <label className="block font-medium text-sm" htmlFor="backup-file">
         {t('importBackup')}
-        <input
+        <Input
           accept=".json,.bak,application/json"
-          className="mt-2 block w-full rounded-md border border-zinc-200 p-3"
+          className="mt-2"
           disabled={busy}
+          id="backup-file"
           onChange={(event) => {
             void inspect(event.target.files?.[0])
             event.target.value = ''
@@ -101,14 +103,14 @@ export const BackupSettings = () => {
       </label>
       <div aria-live="polite">
         {error && (
-          <p className="text-red-700 text-sm" role="alert">
+          <p className="text-destructive text-sm" role="alert">
             {t(error)}
           </p>
         )}
-        {saved && <p className="text-sm text-zinc-600">{t('saved')}</p>}
+        {saved && <p className="text-muted-foreground text-sm">{t('saved')}</p>}
       </div>
       {preview && (
-        <div className="space-y-4 rounded-xl border border-zinc-200 p-5">
+        <div className="space-y-4 rounded-xl border border-border p-5">
           <p className="text-sm">
             {t('importSummary', {
               groups: preview.report.config.ruleProfiles?.length ?? 0,
@@ -118,10 +120,10 @@ export const BackupSettings = () => {
                 (preview.report.config.ruleProfiles ?? []).reduce((sum, p) => sum + p.rules.length, 0)
             })}
           </p>
-          {preview.report.legacy && <p className="text-sm text-zinc-600">{t('legacyImport')}</p>}
+          {preview.report.legacy && <p className="text-muted-foreground text-sm">{t('legacyImport')}</p>}
           {preview.report.issues.length > 0 && (
             <>
-              <p className="font-medium text-amber-800 text-sm">{t('importWarning')}</p>
+              <p className="font-medium text-amber-800 text-sm dark:text-amber-300">{t('importWarning')}</p>
               <ul className="max-h-72 space-y-2 overflow-auto text-sm">
                 {preview.report.issues.map((issue) => (
                   <li key={`${issue.path}:${issue.reason}`}>
@@ -132,10 +134,9 @@ export const BackupSettings = () => {
               </ul>
             </>
           )}
-          <p className="text-sm text-zinc-600">{t('replaceWarning')}</p>
+          <p className="text-muted-foreground text-sm">{t('replaceWarning')}</p>
           <div className="flex gap-3">
-            <button
-              className={`${button} bg-zinc-900 text-white`}
+            <Button
               disabled={busy}
               onClick={() => {
                 void restore()
@@ -143,17 +144,17 @@ export const BackupSettings = () => {
               type="button"
             >
               {t(preview.report.issues.length > 0 ? 'importSupported' : 'confirmImport')}
-            </button>
-            <button
-              className={button}
+            </Button>
+            <Button
               disabled={busy}
               onClick={() => {
                 setPreview(undefined)
               }}
               type="button"
+              variant="outline"
             >
               {t('cancel')}
-            </button>
+            </Button>
           </div>
         </div>
       )}

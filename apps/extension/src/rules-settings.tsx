@@ -3,6 +3,9 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { errorKey, requestConfig } from './client'
+import { Button } from './components/ui/button'
+import { Input } from './components/ui/input'
+import { NativeSelect } from './components/ui/native-select'
 
 export const RulesSettings = () => {
   const { t } = useTranslation()
@@ -81,7 +84,6 @@ export const RulesSettings = () => {
     ;[rules[index], rules[next]] = [adjacent, current]
     updateGroup({ rules })
   }
-  const input = 'rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm'
   const options = (
     <>
       <option value="direct">{t('direct')}</option>
@@ -97,30 +99,31 @@ export const RulesSettings = () => {
   return (
     <section className="space-y-4">
       <h2 className="font-semibold text-xl">{t('rulesTitle')}</h2>
-      <p className="my-3 text-sm text-zinc-500">{t('rulesHint')}</p>
+      <p className="my-3 text-muted-foreground text-sm">{t('rulesHint')}</p>
       {error && (
-        <p className="my-3 text-red-700 text-sm" role="alert">
+        <p className="my-3 text-destructive text-sm" role="alert">
           {t(error)}
         </p>
       )}
-      <button
-        className={`${input} mb-4`}
+      <Button
+        className="mb-4"
         disabled={busy}
         onClick={() => {
           void request()
         }}
         type="button"
+        variant="outline"
       >
         {t('reload')}
-      </button>
-      {dirty && <p className="text-sm text-zinc-500">{t('unsavedRules')}</p>}
+      </Button>
+      {dirty && <p className="text-muted-foreground text-sm">{t('unsavedRules')}</p>}
       {config && (
         <div className="flex flex-wrap gap-2">
-          <label className="text-sm">
+          <label className="text-sm" htmlFor="rule-profile">
             {t('ruleProfile')}
-            <select
-              className={input}
+            <NativeSelect
               disabled={busy || dirty}
+              id="rule-profile"
               onChange={(event) => {
                 setSelected(event.target.value)
               }}
@@ -132,10 +135,9 @@ export const RulesSettings = () => {
                   {p.name}
                 </option>
               ))}
-            </select>
+            </NativeSelect>
           </label>
-          <button
-            className={input}
+          <Button
             disabled={busy || dirty}
             onClick={() => {
               const id = crypto.randomUUID()
@@ -158,12 +160,12 @@ export const RulesSettings = () => {
                 })
             }}
             type="button"
+            variant="outline"
           >
             {t('newRuleProfile')}
-          </button>
+          </Button>
           {selected !== 'auto' && (
-            <button
-              className={input}
+            <Button
               disabled={busy || dirty}
               onClick={() => {
                 setBusy(true)
@@ -181,9 +183,10 @@ export const RulesSettings = () => {
                   })
               }}
               type="button"
+              variant="outline"
             >
               {t('remove')}
-            </button>
+            </Button>
           )}
         </div>
       )}
@@ -194,12 +197,12 @@ export const RulesSettings = () => {
             void request(true)
           }}
         >
-          <fieldset className="space-y-4" disabled={busy}>
+          <fieldset className="min-w-0 space-y-4" disabled={busy}>
             {selected !== 'auto' && (
-              <label className="block text-sm">
+              <label className="block text-sm" htmlFor="rule-name">
                 {t('name')}
-                <input
-                  className={input}
+                <Input
+                  id="rule-name"
                   maxLength={80}
                   onChange={(event) => {
                     updateGroup({ name: event.target.value })
@@ -209,24 +212,24 @@ export const RulesSettings = () => {
                 />
               </label>
             )}
-            <label className="flex items-center gap-3 text-sm">
+            <label className="flex flex-wrap items-center gap-3 text-sm" htmlFor="rule-default">
               {t('defaultTarget')}
-              <select
-                className={input}
+              <NativeSelect
+                id="rule-default"
                 onChange={(event) => {
                   updateGroup({ defaultTarget: event.target.value })
                 }}
                 value={group.defaultTarget}
               >
                 {options}
-              </select>
+              </NativeSelect>
             </label>
             {group.rules.map((rule, index) => (
               // biome-ignore lint/suspicious/noArrayIndexKey: Rows are fully controlled; editing a domain must not remount its input.
-              <div className="flex flex-wrap gap-2 rounded-lg border border-zinc-200 p-3" key={index}>
-                <input
+              <div className="flex flex-wrap gap-2 rounded-lg border border-border p-3" key={index}>
+                <Input
                   aria-label={`${t('domain')} ${index + 1}`}
-                  className={`${input} min-w-0 flex-1`}
+                  className="min-w-40 flex-1"
                   onChange={(event) => {
                     updateGroup({
                       rules: group.rules.map((r, i) => (i === index ? { ...r, domain: event.target.value } : r))
@@ -236,9 +239,8 @@ export const RulesSettings = () => {
                   required
                   value={rule.domain}
                 />
-                <select
+                <NativeSelect
                   aria-label={`${t('target')} ${index + 1}`}
-                  className={input}
                   onChange={(event) => {
                     updateGroup({
                       rules: group.rules.map((r, i) => (i === index ? { ...r, target: event.target.value } : r))
@@ -247,53 +249,51 @@ export const RulesSettings = () => {
                   value={rule.target}
                 >
                   {options}
-                </select>
-                <button
+                </NativeSelect>
+                <Button
                   aria-label={`${t('moveUp')} ${index + 1}`}
-                  className={input}
                   disabled={index === 0}
                   onClick={() => {
                     move(index, -1)
                   }}
                   type="button"
+                  variant="outline"
                 >
                   {t('moveUp')}
-                </button>
-                <button
+                </Button>
+                <Button
                   aria-label={`${t('moveDown')} ${index + 1}`}
-                  className={input}
                   disabled={index === group.rules.length - 1}
                   onClick={() => {
                     move(index, 1)
                   }}
                   type="button"
+                  variant="outline"
                 >
                   {t('moveDown')}
-                </button>
-                <button
-                  className={input}
+                </Button>
+                <Button
                   onClick={() => {
                     updateGroup({ rules: group.rules.filter((_, i) => i !== index) })
                   }}
                   type="button"
+                  variant="outline"
                 >
                   {t('remove')}
-                </button>
+                </Button>
               </div>
             ))}
             <div className="flex gap-3">
-              <button
-                className={input}
+              <Button
                 onClick={() => {
                   updateGroup({ rules: [...group.rules, { domain: '', target: 'direct' }] })
                 }}
                 type="button"
+                variant="outline"
               >
                 {t('addRule')}
-              </button>
-              <button className={`${input} bg-zinc-900 text-white`} type="submit">
-                {t('saveRules')}
-              </button>
+              </Button>
+              <Button type="submit">{t('saveRules')}</Button>
             </div>
           </fieldset>
         </form>

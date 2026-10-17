@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { api } from './browser-api'
+import { Button } from './components/ui/button'
 
 import type { RequestSummary } from './request-monitor'
 
@@ -46,9 +47,9 @@ export const RequestStatus = () => {
     }
   }, [])
   return (
-    <section className="mb-4 rounded-lg border border-zinc-200 p-3 text-xs">
+    <section className="mb-4 rounded-lg border border-border p-3 text-xs">
       <h2 className="font-medium">{t('requests')}</h2>
-      <p className="mt-1 text-zinc-500">{t('requestsHint')}</p>
+      <p className="mt-1 text-muted-foreground">{t('requestsHint')}</p>
       {failed && <p role="alert">{t('monitorError')}</p>}
       {summary && (
         <>
@@ -63,15 +64,17 @@ export const RequestStatus = () => {
           <ul className="max-h-40 space-y-2 overflow-auto">
             {summary.domains.map((domain) => (
               <li key={domain}>
-                <button
-                  className="break-all text-left underline"
+                <Button
+                  className="h-auto justify-start whitespace-normal break-all px-0 text-left"
                   onClick={() => {
                     void api.tabs.create({ url: api.runtime.getURL(`options.html#rule=${encodeURIComponent(domain)}`) })
                   }}
+                  size="sm"
                   type="button"
+                  variant="link"
                 >
                   {t('ruleForDomain', { domain })}
-                </button>
+                </Button>
               </li>
             ))}
           </ul>

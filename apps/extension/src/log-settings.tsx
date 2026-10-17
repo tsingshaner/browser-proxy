@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { api } from './browser-api'
+import { Button } from './components/ui/button'
 
 import type { StoredLog } from './persistent-logs'
 
@@ -41,12 +42,11 @@ export const LogSettings = () => {
   useEffect(() => {
     void request()
   }, [request])
-  const button = 'rounded-md border border-zinc-200 px-3 py-2 text-sm disabled:opacity-50'
   return (
     <section className="space-y-4">
       <h1 className="font-semibold text-2xl">{t('logs')}</h1>
-      <p className="text-sm text-zinc-500">{t('logsHint')}</p>
-      <div className="flex gap-2">
+      <p className="text-muted-foreground text-sm">{t('logsHint')}</p>
+      <div className="flex flex-wrap gap-2">
         {(
           [
             ['get-logs', 'refreshLogs'],
@@ -54,27 +54,27 @@ export const LogSettings = () => {
             ['clear-logs', 'clearLogs']
           ] as const
         ).map(([action, label]) => (
-          <button
-            className={button}
+          <Button
             disabled={busy}
             key={action}
             onClick={() => {
               void request(action)
             }}
             type="button"
+            variant="outline"
           >
             {t(label)}
-          </button>
+          </Button>
         ))}
       </div>
       {failed && (
-        <p className="text-red-700 text-sm" role="alert">
+        <p className="text-destructive text-sm" role="alert">
           {t('logs-unavailable')}
         </p>
       )}
       <ol
         aria-label={t('logs')}
-        className="max-h-96 space-y-2 overflow-auto rounded-lg border border-zinc-200 p-4 text-xs"
+        className="max-h-96 space-y-2 overflow-auto rounded-lg border border-border p-4 text-xs"
       >
         {entries
           .slice(-200)
