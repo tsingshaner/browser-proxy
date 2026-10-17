@@ -1,4 +1,5 @@
 import { normalizeDomain, type ProxyConfig, type RuleProfile } from '@browser-proxy/core'
+import { ArrowDownIcon, ArrowUpIcon, PlusIcon, RefreshCwIcon, Trash2Icon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -91,37 +92,49 @@ export const RulesSettings = () => {
         .filter((p) => p.id !== selected)
         .map((p) => (
           <option key={p.id} value={p.id}>
-            {p.name}
+            {config?.profiles.some((proxy) => proxy.id === p.id) ? p.name : t('ruleGroupOption', { name: p.name })}
           </option>
         ))}
     </>
   )
   return (
-    <section className="space-y-4">
-      <h2 className="font-semibold text-xl">{t('rulesTitle')}</h2>
-      <p className="my-3 text-muted-foreground text-sm">{t('rulesHint')}</p>
+    <section className="space-y-6">
+      <header className="flex items-center justify-between gap-3">
+        <h2 className="font-semibold text-xl tracking-tight">{t('rulesTitle')}</h2>
+        <Button
+          aria-label={t('reload')}
+          disabled={busy}
+          onClick={() => {
+            void request()
+          }}
+          size="icon"
+          title={t('reload')}
+          type="button"
+          variant="ghost"
+        >
+          <RefreshCwIcon aria-hidden="true" />
+        </Button>
+      </header>
+      <p className="text-muted-foreground text-sm leading-relaxed">{t('ruleGroupHint')}</p>
+      <details className="rounded-lg bg-muted/50 px-3 py-2 text-muted-foreground text-xs">
+        <summary className="cursor-pointer font-medium">{t('rulesGuide')}</summary>
+        <p className="pt-2 leading-relaxed">{t('rulesHint')}</p>
+      </details>
       {error && (
         <p className="my-3 text-destructive text-sm" role="alert">
           {t(error)}
         </p>
       )}
-      <Button
-        className="mb-4"
-        disabled={busy}
-        onClick={() => {
-          void request()
-        }}
-        type="button"
-        variant="outline"
-      >
-        {t('reload')}
-      </Button>
       {dirty && <p className="text-muted-foreground text-sm">{t('unsavedRules')}</p>}
       {config && (
-        <div className="flex flex-wrap gap-2">
-          <label className="text-sm" htmlFor="rule-profile">
+        <div className="flex flex-wrap items-end gap-2 rounded-xl border border-border bg-muted/20 p-4">
+          <label
+            className="grid min-w-0 basis-full gap-2 font-medium text-sm sm:flex-1 sm:basis-auto"
+            htmlFor="rule-profile"
+          >
             {t('ruleProfile')}
             <NativeSelect
+              className="w-full"
               disabled={busy || dirty}
               id="rule-profile"
               onChange={(event) => {
@@ -162,8 +175,10 @@ export const RulesSettings = () => {
             type="button"
             variant="outline"
           >
-            {t('newRuleProfile')}
+            <PlusIcon aria-hidden="true" />
+            {t('newRuleProfileAction')}
           </Button>
+          <p className="basis-full text-muted-foreground text-xs leading-relaxed">{t('ruleGroupEditingHint')}</p>
           {selected !== 'auto' && (
             <Button
               disabled={busy || dirty}
@@ -197,10 +212,10 @@ export const RulesSettings = () => {
             void request(true)
           }}
         >
-          <fieldset className="min-w-0 space-y-4" disabled={busy}>
+          <fieldset className="min-w-0 space-y-5" disabled={busy}>
             {selected !== 'auto' && (
-              <label className="block text-sm" htmlFor="rule-name">
-                {t('name')}
+              <label className="grid gap-2 font-medium text-sm" htmlFor="rule-name">
+                {t('ruleGroupName')}
                 <Input
                   id="rule-name"
                   maxLength={80}
@@ -212,9 +227,10 @@ export const RulesSettings = () => {
                 />
               </label>
             )}
-            <label className="flex flex-wrap items-center gap-3 text-sm" htmlFor="rule-default">
+            <label className="grid gap-2 font-medium text-sm" htmlFor="rule-default">
               {t('defaultTarget')}
               <NativeSelect
+                className="w-full"
                 id="rule-default"
                 onChange={(event) => {
                   updateGroup({ defaultTarget: event.target.value })
@@ -226,64 +242,96 @@ export const RulesSettings = () => {
             </label>
             {group.rules.map((rule, index) => (
               // biome-ignore lint/suspicious/noArrayIndexKey: Rows are fully controlled; editing a domain must not remount its input.
-              <div className="flex flex-wrap gap-2 rounded-lg border border-border p-3" key={index}>
-                <Input
-                  aria-label={`${t('domain')} ${index + 1}`}
-                  className="min-w-40 flex-1"
-                  onChange={(event) => {
-                    updateGroup({
-                      rules: group.rules.map((r, i) => (i === index ? { ...r, domain: event.target.value } : r))
-                    })
-                  }}
-                  placeholder="example.com"
-                  required
-                  value={rule.domain}
-                />
-                <NativeSelect
-                  aria-label={`${t('target')} ${index + 1}`}
-                  onChange={(event) => {
-                    updateGroup({
-                      rules: group.rules.map((r, i) => (i === index ? { ...r, target: event.target.value } : r))
-                    })
-                  }}
-                  value={rule.target}
-                >
-                  {options}
-                </NativeSelect>
-                <Button
-                  aria-label={`${t('moveUp')} ${index + 1}`}
-                  disabled={index === 0}
-                  onClick={() => {
-                    move(index, -1)
-                  }}
-                  type="button"
-                  variant="outline"
-                >
-                  {t('moveUp')}
-                </Button>
-                <Button
-                  aria-label={`${t('moveDown')} ${index + 1}`}
-                  disabled={index === group.rules.length - 1}
-                  onClick={() => {
-                    move(index, 1)
-                  }}
-                  type="button"
-                  variant="outline"
-                >
-                  {t('moveDown')}
-                </Button>
-                <Button
-                  onClick={() => {
-                    updateGroup({ rules: group.rules.filter((_, i) => i !== index) })
-                  }}
-                  type="button"
-                  variant="outline"
-                >
-                  {t('remove')}
-                </Button>
+              <div className="space-y-3 rounded-xl border border-border p-3 sm:p-4" key={index}>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-medium text-muted-foreground text-xs">
+                    {t('rulePosition', { number: index + 1 })}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      aria-label={`${t('moveUp')} ${index + 1}`}
+                      disabled={index === 0}
+                      onClick={() => {
+                        move(index, -1)
+                      }}
+                      size="icon-sm"
+                      title={t('moveUp')}
+                      type="button"
+                      variant="ghost"
+                    >
+                      <ArrowUpIcon aria-hidden="true" />
+                    </Button>
+                    <Button
+                      aria-label={`${t('moveDown')} ${index + 1}`}
+                      disabled={index === group.rules.length - 1}
+                      onClick={() => {
+                        move(index, 1)
+                      }}
+                      size="icon-sm"
+                      title={t('moveDown')}
+                      type="button"
+                      variant="ghost"
+                    >
+                      <ArrowDownIcon aria-hidden="true" />
+                    </Button>
+                    <Button
+                      aria-label={`${t('remove')} ${index + 1}`}
+                      className="text-muted-foreground hover:text-destructive"
+                      onClick={() => {
+                        updateGroup({ rules: group.rules.filter((_, i) => i !== index) })
+                      }}
+                      size="icon-sm"
+                      title={t('remove')}
+                      type="button"
+                      variant="ghost"
+                    >
+                      <Trash2Icon aria-hidden="true" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+                  <label
+                    className="grid min-w-0 gap-1.5 text-muted-foreground text-xs"
+                    htmlFor={`rule-domain-${index}`}
+                  >
+                    {t('domain')}
+                    <Input
+                      aria-label={`${t('domain')} ${index + 1}`}
+                      className="min-w-0 text-foreground"
+                      id={`rule-domain-${index}`}
+                      onChange={(event) => {
+                        updateGroup({
+                          rules: group.rules.map((r, i) => (i === index ? { ...r, domain: event.target.value } : r))
+                        })
+                      }}
+                      placeholder="example.com"
+                      required
+                      value={rule.domain}
+                    />
+                  </label>
+                  <label
+                    className="grid min-w-0 gap-1.5 text-muted-foreground text-xs"
+                    htmlFor={`rule-target-${index}`}
+                  >
+                    {t('target')}
+                    <NativeSelect
+                      aria-label={`${t('target')} ${index + 1}`}
+                      className="w-full text-foreground"
+                      id={`rule-target-${index}`}
+                      onChange={(event) => {
+                        updateGroup({
+                          rules: group.rules.map((r, i) => (i === index ? { ...r, target: event.target.value } : r))
+                        })
+                      }}
+                      value={rule.target}
+                    >
+                      {options}
+                    </NativeSelect>
+                  </label>
+                </div>
               </div>
             ))}
-            <div className="flex gap-3">
+            <div className="flex items-center justify-between gap-3 border-border border-t pt-4">
               <Button
                 onClick={() => {
                   updateGroup({ rules: [...group.rules, { domain: '', target: 'direct' }] })
@@ -291,6 +339,7 @@ export const RulesSettings = () => {
                 type="button"
                 variant="outline"
               >
+                <PlusIcon aria-hidden="true" />
                 {t('addRule')}
               </Button>
               <Button type="submit">{t('saveRules')}</Button>

@@ -1,7 +1,6 @@
+import { type ProxyConfig, parseConfig } from '@browser-proxy/core'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-
-import type { ProxyConfig } from '@browser-proxy/core'
 
 import { api } from './browser-api'
 import { errorKey, requestConfig } from './client'
@@ -20,6 +19,14 @@ export const ModeSwitcher = () => {
       setAuthFailed(value.authFailed === true)
     })
     const listener = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
+      if (area === 'local' && changes.proxyConfig?.newValue) {
+        try {
+          const next = parseConfig(changes.proxyConfig.newValue)
+          setConfig((current) => (!current || next.revision >= current.revision ? next : current))
+        } catch {
+          setError('error')
+        }
+      }
       if (area === 'session' && changes.authFailed) {
         setAuthFailed(changes.authFailed.newValue === true)
       }
@@ -34,7 +41,10 @@ export const ModeSwitcher = () => {
     setBusy(true)
     setError('')
     try {
-      setConfig(await requestConfig(next ? { mode: next, revision: config?.revision, type: 'set-mode' } : undefined))
+      const updated = await requestConfig(
+        next ? { mode: next, revision: config?.revision, type: 'set-mode' } : undefined
+      )
+      setConfig((current) => (!current || updated.revision >= current.revision ? updated : current))
     } catch (error) {
       setError(errorKey(error))
     } finally {
@@ -43,7 +53,9 @@ export const ModeSwitcher = () => {
   }
   useEffect(() => {
     void requestConfig()
-      .then(setConfig)
+      .then((updated) => {
+        setConfig((current) => (!current || updated.revision >= current.revision ? updated : current))
+      })
       .catch((error) => {
         setError(errorKey(error))
       })
@@ -87,7 +99,7 @@ export const ModeSwitcher = () => {
               key={value}
             >
               <RadioGroupItem id={`mode-${value}`} value={value} />
-              <span>
+              <span className="min-w-0 break-words">
                 <span className="block font-medium text-sm">
                   {[...(config?.profiles ?? []), ...(config?.ruleProfiles ?? [])].find((p) => p.id === value)?.name ??
                     t(value)}

@@ -6,6 +6,7 @@ import { api } from './browser-api'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs'
 import { translationsReady } from './i18n'
 import { LogSettings } from './log-settings'
+import { ModeSwitcher } from './mode-switcher'
 import { ProxySettings } from './proxy-settings-view'
 import { RulesSettings } from './rules-settings'
 import './style.css'
@@ -19,12 +20,15 @@ const Options = () => {
           aria-label={t('manage')}
           className="mb-6 grid w-full grid-cols-2 group-data-[orientation=horizontal]/tabs:h-auto sm:flex"
         >
-          {['profiles', 'rulesTitle', 'backup', 'logs'].map((value) => (
+          {['mode', 'profiles', 'rulesTitle', 'backup', 'logs'].map((value) => (
             <TabsTrigger className="h-9" key={value} value={value}>
               {t(value)}
             </TabsTrigger>
           ))}
         </TabsList>
+        <TabsContent value="mode">
+          <ModeSwitcher />
+        </TabsContent>
         <TabsContent value="profiles">
           <ProxySettings />
         </TabsContent>

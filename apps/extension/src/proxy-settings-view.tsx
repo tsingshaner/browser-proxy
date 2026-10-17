@@ -7,6 +7,7 @@ import { errorKey, requestConfig } from './client'
 import { Button } from './components/ui/button'
 import { Input } from './components/ui/input'
 import { NativeSelect } from './components/ui/native-select'
+import { ProxyLatencyTest } from './proxy-latency-view'
 
 export const ProxySettings = () => {
   const { t } = useTranslation()
@@ -197,6 +198,12 @@ export const ProxySettings = () => {
                     {t('remove')}
                   </Button>
                 </div>
+                <ProxyLatencyTest
+                  active={!busy && config.mode === profile.id}
+                  key={`${profile.id}:${config.revision}`}
+                  profileId={profile.id}
+                  revision={config.revision}
+                />
               </li>
             ))}
           </ul>

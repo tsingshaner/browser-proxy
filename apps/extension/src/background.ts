@@ -1,22 +1,32 @@
 import { configure, getConsoleSink, getLogger } from '@logtape/logtape'
 
 import { api, isFirefox } from './browser-api'
+import { createLogControl } from './log-control'
 import { createModeController } from './mode-controller'
 import { createPersistentLogs } from './persistent-logs'
 import { createProxyAuth } from './proxy-auth'
+import { createProxyLatency } from './proxy-latency'
 import { type FirefoxProxyValue, proxyValue } from './proxy-settings'
 import { createRequestMonitor } from './request-monitor'
 
 const logs = createPersistentLogs()
 const monitor = createRequestMonitor()
 const logger = getLogger(['browser-proxy'])
-const logging = configure({
-  loggers: [
-    { category: ['browser-proxy'], lowestLevel: 'info', sinks: ['console', 'persistent'] },
-    { category: ['logtape', 'meta'], lowestLevel: 'warning', sinks: ['console'] }
-  ],
-  sinks: { console: getConsoleSink(), persistent: logs.sink }
+const logControl = createLogControl({
+  read: async () => (await api.storage.local.get('logsEnabled')).logsEnabled,
+  write: async (enabled) => {
+    await api.storage.local.set({ logsEnabled: enabled })
+  }
 })
+const logging = logControl.ready.then(() =>
+  configure({
+    loggers: [
+      { category: ['browser-proxy'], lowestLevel: 'info', sinks: ['console', 'persistent'] },
+      { category: ['logtape', 'meta'], lowestLevel: 'warning', sinks: ['console'] }
+    ],
+    sinks: { console: logControl.sink(getConsoleSink()), persistent: logControl.sink(logs.sink) }
+  })
+)
 
 void logging.then(() => {
   logger.info('Background initialized.')
@@ -49,22 +59,48 @@ void controller.ready.catch(async () => {
   logger.error('Could not restore proxy mode.')
 })
 
+let proxyGeneration = 0
+api.proxy.settings.onChange.addListener(() => {
+  proxyGeneration += 1
+})
+const testProxy = createProxyLatency({
+  fetch: (...args) => fetch(...args),
+  read: async () => {
+    const config = await controller.handle({ type: 'get-config' })
+    const control = await api.proxy.settings.get({ incognito: false })
+    return {
+      config,
+      controlled: control.levelOfControl === 'controlled_by_this_extension',
+      generation: proxyGeneration
+    }
+  }
+})
+
 api.runtime.onMessage.addListener((message: unknown, sender, respond) => {
   if (sender.id !== api.runtime.id) {
     return false
+  }
+
+  if (message && typeof message === 'object' && 'type' in message && message.type === 'test-proxy') {
+    void testProxy(message as { profileId?: unknown; revision?: unknown }).then(respond)
+    return true
   }
   if (
     message &&
     typeof message === 'object' &&
     'type' in message &&
-    ['get-logs', 'clear-logs'].includes(message.type as string)
+    ['get-logs', 'clear-logs', 'set-logs-enabled'].includes(message.type as string)
   ) {
     void (async () => {
       await logging
+      await logControl.restore()
+      if (message.type === 'set-logs-enabled') {
+        await logControl.setEnabled(Reflect.get(message, 'enabled'))
+      }
       if (message.type === 'clear-logs') {
         await logs.clear()
       }
-      return logs.read()
+      return { ...(await logs.read().catch(() => ({ entries: [], failed: true }))), enabled: logControl.enabled }
     })().then(
       (value) => {
         respond({ ok: true, ...value })
