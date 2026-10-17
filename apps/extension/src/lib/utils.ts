@@ -1,6 +1,5 @@
-import { type ClassValue, clsx } from 'clsx'
-import { twMerge } from 'tailwind-merge'
+import { cn } from 'cn'
+import { defineConfig } from 'cva/config'
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
+export const { cva } = defineConfig({ cx: cn })
+export { cn } from 'cn'

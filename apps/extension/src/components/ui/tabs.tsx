@@ -1,7 +1,8 @@
 import { Tabs as TabsPrimitive } from '@base-ui/react/tabs'
-import { cva, type VariantProps } from 'class-variance-authority'
 
-import { cn } from '../../lib/utils'
+import type { VariantProps } from 'cva'
+
+import { cn, cva } from '../../lib/utils'
 
 const Tabs = ({ className, orientation = 'horizontal', ...props }: TabsPrimitive.Root.Props) => {
   return (
@@ -15,20 +16,18 @@ const Tabs = ({ className, orientation = 'horizontal', ...props }: TabsPrimitive
   )
 }
 
-const tabsListVariants = cva(
-  'group/tabs-list inline-flex w-fit items-center justify-center rounded-lg p-[3px] text-muted-foreground group-data-[orientation=horizontal]/tabs:h-8 group-data-[orientation=vertical]/tabs:h-fit group-data-[orientation=vertical]/tabs:flex-col data-[variant=line]:rounded-none',
-  {
-    defaultVariants: {
-      variant: 'default'
-    },
-    variants: {
-      variant: {
-        default: 'bg-muted',
-        line: 'gap-1 bg-transparent'
-      }
+const tabsListVariants = cva({
+  base: 'group/tabs-list inline-flex w-fit items-center justify-center rounded-lg p-[3px] text-muted-foreground group-data-[orientation=horizontal]/tabs:h-8 group-data-[orientation=vertical]/tabs:h-fit group-data-[orientation=vertical]/tabs:flex-col data-[variant=line]:rounded-none',
+  defaultVariants: {
+    variant: 'default'
+  },
+  variants: {
+    variant: {
+      default: 'bg-muted',
+      line: 'gap-1 bg-transparent'
     }
   }
-)
+})
 
 const TabsList = ({
   className,
@@ -37,7 +36,7 @@ const TabsList = ({
 }: TabsPrimitive.List.Props & VariantProps<typeof tabsListVariants>) => {
   return (
     <TabsPrimitive.List
-      className={cn(tabsListVariants({ variant }), className)}
+      className={tabsListVariants({ className, variant })}
       data-slot="tabs-list"
       data-variant={variant}
       {...props}

@@ -13,14 +13,13 @@
     "@base-ui/react": "^1.9.0",
     "@browser-proxy/core": "workspace:*",
     "@logtape/logtape": "^2.4.0",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
+    "cn": "^0.4.0",
+    "cva": "1.0.0-beta.12",
     "i18next": "^26.4.0",
     "lucide-react": "^1.57.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-i18next": "^17.0.0",
-    "tailwind-merge": "^3.7.0"
+    "react-i18next": "^17.0.0"
   },
   "devDependencies": {
     "@crxjs/vite-plugin": "^3.0.0",
