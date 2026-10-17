@@ -7,7 +7,7 @@ jobs:
       - checkout
       - run: corepack enable
       - run: pnpm install --frozen-lockfile
-      - run: pnpm typecheck
+      - run: pnpm check:type
       - run: pnpm test
       - run: pnpm build
       - run: pnpm release

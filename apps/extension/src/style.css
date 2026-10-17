@@ -1,7 +1,10 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   --font-sans: ui-sans-serif, system-ui, sans-serif;
 }
 
-body { margin: 0; font-family: var(--font-sans); }
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+}

@@ -1,22 +1,39 @@
 {
   "name": "browser-proxy",
   "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "pnpm --filter \"@browser-proxy/*\" -r build",
+    "check": "biome check . --write",
+    "check:cspell": "cspell . --no-summary --no-progress --gitignore",
+    "check:knip": "knip",
+    "check:type": "tsc -p tsconfig.json && pnpm --filter \"@browser-proxy/*\" -r check:type",
+    "dev": "pnpm --filter @browser-proxy/extension dev",
+    "dev:firefox": "pnpm --filter @browser-proxy/extension dev:firefox",
+    "release": "pnpm build && node scripts/package-extension.mjs",
+    "test": "vitest run"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm nano-staged",
+    "pre-push": "pnpm run '/^(test|check.*)$/'"
+  },
+  "nano-staged": {
+    "*": "pnpm cspell --no-summary --no-progress --no-must-find-files --file",
+    "*.{json,jsonc,js,jsx,cjs,mjs,ts,tsx,cts,mts,html,svg,css,vue}": "pnpm biome check --fix --files-ignore-unknown=true --no-errors-on-unmatched"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.15",
+    "@qingshaner/devtools": "^1.0.1",
+    "@types/node": "^24.0.0",
+    "cspell": "^10.4.0",
+    "knip": "^6.41.0",
+    "nano-staged": "^1.0.2",
+    "simple-git-hooks": "^2.14.0",
+    "typescript": "5.9.3",
+    "vitest": "5.0.4"
+  },
   "packageManager": "pnpm@12.11.2",
   "engines": {
     "node": ">=24.11.0 <25"
-  },
-  "scripts": {
-    "build": "pnpm --filter \"@browser-proxy/*\" -r build",
-    "dev": "pnpm --filter @browser-proxy/extension dev",
-    "dev:firefox": "pnpm --filter @browser-proxy/extension dev:firefox",
-    "test": "vitest run",
-    "typecheck": "tsc -p tsconfig.json && pnpm --filter \"@browser-proxy/*\" -r typecheck",
-    "release": "pnpm build && node scripts/package-extension.mjs"
-  },
-  "devDependencies": {
-    "typescript": "5.9.3",
-    "vitest": "5.0.4",
-    "@types/node": "^24.0.0"
-  },
-  "type": "module"
+  }
 }

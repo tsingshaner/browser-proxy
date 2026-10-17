@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies, validate, build, release
         run: |
           pnpm install --frozen-lockfile
-          pnpm typecheck
+          pnpm check:type
           pnpm test
           pnpm build
           pnpm release

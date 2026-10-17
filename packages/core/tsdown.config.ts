@@ -1,3 +1,3 @@
-import { defineConfig } from 'tsdown';
+import { defineConfig } from 'tsdown'
 
-export default defineConfig({ entry: ['src/index.ts'], dts: true, platform: 'browser' });
+export default defineConfig({ dts: true, entry: ['src/index.ts'], platform: 'browser' })

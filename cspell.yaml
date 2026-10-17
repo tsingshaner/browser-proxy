@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json
+
+import: '@qingshaner/devtools/cspell'
+
+ignorePaths:
+  - .gitignore
+  - pnpm-lock.yaml
+  - docs
+  - AUTHORS
+
+words:
+  - crxjs
+  - reka-ui
+  - tsingshaner
+  - autoconfig
+  - Switchy
+  - fsevents
+  - badexample
+  - fsqu
+  - fiqs
+  - cimg
+  - softprops

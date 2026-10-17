@@ -1,7 +1,7 @@
 node_modules
-package-lock.json
 *-release.zip
 *.swp
+.DS_Store
 
 # Workspace outputs
 /apps/*/dist/

@@ -1,0 +1,26 @@
+{
+  "$schema": "node_modules/@biomejs/biome/configuration_schema.json",
+  "extends": ["@qingshaner/devtools/biome"],
+  "overrides": [
+    {
+      "includes": ["apps/extension/src/**/*.tsx"],
+      "linter": {
+        "rules": {
+          "nursery": {
+            "noUndeclaredClasses": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/extension/src/popup.tsx", "apps/extension/src/options.tsx"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useComponentExportOnlyModules": "off"
+          }
+        }
+      }
+    }
+  ]
+}

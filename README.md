@@ -9,7 +9,7 @@ Use Node.js 24.11+ (24.x), pnpm **12.11.2**, and `zip` for release packaging.
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm typecheck
+pnpm check:type
 pnpm test
 pnpm build
 ```
