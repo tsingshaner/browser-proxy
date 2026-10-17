@@ -1,3 +1,5 @@
+Published as [#11](https://github.com/tsingshaner/browser-proxy/issues/11). Implementation deferred.
+
 ## Parent
 
 https://github.com/tsingshaner/browser-proxy/issues/9

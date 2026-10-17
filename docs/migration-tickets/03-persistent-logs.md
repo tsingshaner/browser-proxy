@@ -1,3 +1,5 @@
+Published as [#13](https://github.com/tsingshaner/browser-proxy/issues/13). Implementation deferred.
+
 ## Parent
 
 https://github.com/tsingshaner/browser-proxy/issues/9
@@ -9,7 +11,7 @@ https://github.com/tsingshaner/browser-proxy/issues/9
 ## Acceptance criteria
 
 - [ ] 设置页可查看、导出和清空日志；后台重新初始化后保留未过期记录，存储失败不会阻断代理切换。
-- [ ] 默认沿用旧版最近 7 天保留期，同时最多保留 5,000 条且序列化 UTF-8 总量不超过 5 MB；写入和读取时清理超限记录。
+- [ ] 默认保留最近 30 天，同时最多保留 5,000 条且序列化 UTF-8 总量不超过 5 MB；写入和读取时清理超限记录。
 - [ ] 使用 LogTape 自定义持久化 sink 和原生 IndexedDB / Promise，不新增 idb-keyval；不占用代理配置的 storage.local 配额。
 - [ ] 不记录密码、令牌、完整认证头或完整配置；日志和导出经过统一脱敏，只保留排障必需信息。
 - [ ] 新版日志与旧库隔离，不自动复制可能包含敏感内容的旧文本日志；迁移说明引导用户在旧版手动导出，升级不删除旧历史日志。
