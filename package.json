@@ -10,7 +10,7 @@
     "check:type": "tsc -p tsconfig.json && pnpm --filter \"@browser-proxy/*\" -r check:type",
     "dev": "pnpm --filter @browser-proxy/extension dev",
     "dev:firefox": "pnpm --filter @browser-proxy/extension dev:firefox",
-    "release": "pnpm build && node scripts/package-extension.mjs",
+    "release": "pnpm build",
     "test": "vitest run"
   },
   "simple-git-hooks": {

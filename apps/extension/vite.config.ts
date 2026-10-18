@@ -1,12 +1,18 @@
+import { copyFile, readFile } from 'node:fs/promises'
+import { fileURLToPath } from 'node:url'
+
 import { crx } from '@crxjs/vite-plugin'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
+import zipPack from 'vite-plugin-zip-pack'
 
 export default defineConfig(({ mode }) => {
   const firefox = mode === 'firefox'
+  const outDir = firefox ? 'dist-firefox' : 'dist'
+  const source = new URL(`./${outDir}/`, import.meta.url)
   return {
-    build: { outDir: firefox ? 'dist-firefox' : 'dist' },
+    build: { outDir },
     plugins: [
       react(),
       tailwindcss(),
@@ -35,11 +41,25 @@ export default defineConfig(({ mode }) => {
                 }
               }
             : { minimum_chrome_version: '120', side_panel: { default_path: 'options.html' } }),
-          action: { default_popup: 'popup.html', default_title: 'Browser Proxy' },
+          action: {
+            default_icon: {
+              16: 'public/icon-16.png',
+              32: 'public/icon-32.png',
+              48: 'public/icon-48.png'
+            },
+            default_popup: 'popup.html',
+            default_title: 'Browser Proxy'
+          },
           background: firefox
             ? { scripts: ['src/background.ts'], type: 'module' }
             : { service_worker: 'src/background.ts', type: 'module' },
           host_permissions: ['<all_urls>'],
+          icons: {
+            16: 'public/icon-16.png',
+            32: 'public/icon-32.png',
+            48: 'public/icon-48.png',
+            128: 'public/icon-128.png'
+          },
           options_ui: { open_in_tab: true, page: 'options.html' },
           permissions: [
             'proxy',
@@ -51,6 +71,33 @@ export default defineConfig(({ mode }) => {
           ]
         }
         // biome-ignore-end lint/style/useNamingConvention: Browser manifest schema ends here.
+      }),
+      {
+        apply: 'build',
+        closeBundle: {
+          async handler() {
+            const manifest = JSON.parse(await readFile(new URL('manifest.json', source), 'utf8'))
+            if (manifest.manifest_version !== 3) {
+              throw new Error('Invalid extension manifest')
+            }
+            for (const name of ['COPYING', 'AUTHORS']) {
+              await copyFile(new URL(`../../${name}`, import.meta.url), new URL(name, source))
+            }
+          },
+          sequential: true
+        },
+        enforce: 'post',
+        name: 'prepare-extension-package'
+      },
+      zipPack({
+        done(error) {
+          if (error) {
+            throw error
+          }
+        },
+        inDir: fileURLToPath(source),
+        outDir: fileURLToPath(new URL('../../dist/', import.meta.url)),
+        outFileName: `${firefox ? 'firefox' : 'chromium'}-release.zip`
       })
     ],
     resolve: { alias: { '@': new URL('./src', import.meta.url).pathname } }
