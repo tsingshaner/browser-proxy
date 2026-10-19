@@ -1,17 +1,18 @@
 import { configure, getConsoleSink, getLogger } from '@logtape/logtape'
 
 import { api, isFirefox } from './browser-api'
-import { createLogControl } from './log-control'
-import { createModeController } from './mode-controller'
-import { createPersistentLogs } from './persistent-logs'
-import { createProxyAuth } from './proxy-auth'
-import { createProxyLatency } from './proxy-latency'
-import { type FirefoxProxyValue, proxyValue } from './proxy-settings'
-import { createRequestMonitor } from './request-monitor'
+import { createLogControl } from './features/logs/log-control'
+import { createPersistentLogs } from './features/logs/persistent-logs'
+import { createModeController } from './features/proxy/mode-controller'
+import { createProxyAuth } from './features/proxy/proxy-auth'
+import { createProxyLatency } from './features/proxy/proxy-latency'
+import { type FirefoxProxyValue, proxyValue } from './features/proxy/proxy-settings'
+import './features/redirect/background'
+import { createRequestMonitor } from './features/request-monitor/request-monitor'
 
 const logs = createPersistentLogs()
 const monitor = createRequestMonitor()
-const logger = getLogger(['browser-proxy'])
+const logger = getLogger(['browser-tookits'])
 const logControl = createLogControl({
   read: async () => (await api.storage.local.get('logsEnabled')).logsEnabled,
   write: async (enabled) => {
@@ -21,7 +22,7 @@ const logControl = createLogControl({
 const logging = logControl.ready.then(() =>
   configure({
     loggers: [
-      { category: ['browser-proxy'], lowestLevel: 'info', sinks: ['console', 'persistent'] },
+      { category: ['browser-tookits'], lowestLevel: 'info', sinks: ['console', 'persistent'] },
       { category: ['logtape', 'meta'], lowestLevel: 'warning', sinks: ['console'] }
     ],
     sinks: { console: logControl.sink(getConsoleSink()), persistent: logControl.sink(logs.sink) }
@@ -77,7 +78,10 @@ const testProxy = createProxyLatency({
 })
 
 api.runtime.onMessage.addListener((message: unknown, sender, respond) => {
-  if (sender.id !== api.runtime.id) {
+  if (
+    sender.id !== api.runtime.id ||
+    (message && typeof message === 'object' && 'feature' in message && message.feature === 'pathRedirect')
+  ) {
     return false
   }
 

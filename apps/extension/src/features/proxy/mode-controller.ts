@@ -1,4 +1,4 @@
-import { inspectBackup, type ProxyConfig, parseConfig, parseProfile } from '@browser-proxy/core'
+import { inspectBackup, type ProxyConfig, parseConfig, parseProfile } from '@browser-tookits/core'
 
 function setMode(next: ProxyConfig, request: Record<string, unknown>): ProxyConfig {
   if (

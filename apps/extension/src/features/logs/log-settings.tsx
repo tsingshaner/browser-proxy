@@ -2,8 +2,8 @@ import { Switch } from '@base-ui/react/switch'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { api } from './browser-api'
-import { Button } from './components/ui/button'
+import { api } from '../../browser-api'
+import { Button } from '../../components/ui/button'
 
 import type { StoredLog } from './persistent-logs'
 
@@ -34,7 +34,7 @@ export const LogSettings = () => {
           )
           const anchor = document.createElement('a')
           anchor.href = url
-          anchor.download = `browser-proxy-logs-${new Date().toISOString().slice(0, 10)}.json`
+          anchor.download = `browser-tookits-logs-${new Date().toISOString().slice(0, 10)}.json`
           anchor.click()
           setTimeout(() => {
             URL.revokeObjectURL(url)

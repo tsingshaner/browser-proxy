@@ -1,6 +1,6 @@
 import { runInNewContext } from 'node:vm'
 
-import { parseConfig } from '@browser-proxy/core'
+import { parseConfig } from '@browser-tookits/core'
 import { expect, test } from 'vitest'
 
 import { proxyValue } from './proxy-settings'

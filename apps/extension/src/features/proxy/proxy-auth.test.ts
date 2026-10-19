@@ -1,7 +1,7 @@
-import { parseConfig } from '@browser-proxy/core'
+import { parseConfig } from '@browser-tookits/core'
 import { describe, expect, test } from 'vitest'
 
-import type { ProxyConfig } from '@browser-proxy/core'
+import type { ProxyConfig } from '@browser-tookits/core'
 
 import { createProxyAuth } from './proxy-auth'
 

@@ -1,4 +1,4 @@
-import type { ProxyConfig } from '@browser-proxy/core'
+import type { ProxyConfig } from '@browser-tookits/core'
 
 export const probeUrl = 'https://www.gstatic.com/generate_204'
 

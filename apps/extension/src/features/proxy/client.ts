@@ -1,6 +1,6 @@
-import { parseConfig } from '@browser-proxy/core'
+import { parseConfig } from '@browser-tookits/core'
 
-import { api } from './browser-api'
+import { api } from '../../browser-api'
 
 export async function requestConfig(message: Record<string, unknown> = { type: 'get-config' }) {
   const response = await api.runtime.sendMessage(message)

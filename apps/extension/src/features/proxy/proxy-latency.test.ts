@@ -1,4 +1,4 @@
-import { parseConfig } from '@browser-proxy/core'
+import { parseConfig } from '@browser-tookits/core'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { createProxyLatency, probeUrl } from './proxy-latency'

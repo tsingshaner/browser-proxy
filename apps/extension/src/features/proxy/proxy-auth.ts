@@ -1,4 +1,4 @@
-import { type ProxyConfig, resolveTarget } from '@browser-proxy/core'
+import { type ProxyConfig, resolveTarget } from '@browser-tookits/core'
 
 type Challenge = { url?: string; requestId: string; isProxy: boolean; challenger: { host: string; port: number } }
 

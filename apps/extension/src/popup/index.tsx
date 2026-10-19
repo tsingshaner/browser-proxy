@@ -1,14 +1,14 @@
 import { createRoot } from 'react-dom/client'
 import { useTranslation } from 'react-i18next'
 
-import { api, isFirefox } from './browser-api'
-import { Button } from './components/ui/button'
-import { translationsReady } from './i18n'
-import { ModeSwitcher } from './mode-switcher'
-import './style.css'
+import { api, isFirefox } from '../browser-api'
+import { Button } from '../components/ui/button'
+import { ModeSwitcher } from '../features/proxy/mode-switcher'
+import { translationsReady } from '../i18n'
+import '../style.css'
 
-import { RequestStatus } from './request-status'
-import { SidePanelButton } from './side-panel-button'
+import { RequestStatus } from '../features/request-monitor/request-status'
+import { SidePanelButton } from '../features/side-panel/side-panel-button'
 
 const Popup = () => {
   const { t } = useTranslation()

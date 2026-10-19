@@ -1,10 +1,10 @@
-import { exportBackup, type ImportPreview, inspectBackup } from '@browser-proxy/core'
+import { exportBackup, type ImportPreview, inspectBackup } from '@browser-tookits/core'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { errorKey, requestConfig } from './client'
-import { Button } from './components/ui/button'
-import { Input } from './components/ui/input'
+import { Button } from '../../components/ui/button'
+import { Input } from '../../components/ui/input'
+import { errorKey, requestConfig } from '../proxy/client'
 
 export const BackupSettings = () => {
   const { t } = useTranslation()
@@ -62,7 +62,7 @@ export const BackupSettings = () => {
       const url = URL.createObjectURL(new Blob([exportBackup(await requestConfig())], { type: 'application/json' }))
       const anchor = document.createElement('a')
       anchor.href = url
-      anchor.download = `browser-proxy-${new Date().toISOString().slice(0, 10)}.json`
+      anchor.download = `browser-tookits-${new Date().toISOString().slice(0, 10)}.json`
       anchor.click()
       setTimeout(() => {
         URL.revokeObjectURL(url)

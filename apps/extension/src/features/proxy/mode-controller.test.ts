@@ -1,4 +1,4 @@
-import { parseConfig } from '@browser-proxy/core'
+import { parseConfig } from '@browser-tookits/core'
 import { describe, expect, test } from 'vitest'
 
 import { createModeController } from './mode-controller'

@@ -3,7 +3,7 @@
     "jsx": "react-jsx",
     "paths": {
       "@/*": ["./src/*"],
-      "@browser-proxy/core": ["../../packages/core/src/index.ts"]
+      "@browser-tookits/core": ["../../packages/core/src/index.ts"]
     },
     "types": ["chrome", "vite/client"]
   },

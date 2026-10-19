@@ -1,12 +1,12 @@
 import { type FormEvent, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import type { ProxyConfig, ProxyProfile } from '@browser-proxy/core'
+import type { ProxyConfig, ProxyProfile } from '@browser-tookits/core'
 
+import { Button } from '../../components/ui/button'
+import { Input } from '../../components/ui/input'
+import { NativeSelect } from '../../components/ui/native-select'
 import { errorKey, requestConfig } from './client'
-import { Button } from './components/ui/button'
-import { Input } from './components/ui/input'
-import { NativeSelect } from './components/ui/native-select'
 import { ProxyLatencyTest } from './proxy-latency-view'
 
 export const ProxySettings = () => {
@@ -59,7 +59,7 @@ export const ProxySettings = () => {
   return (
     <section>
       <header className="mb-8">
-        <p className="text-muted-foreground text-sm">Browser Proxy</p>
+        <p className="text-muted-foreground text-sm">Browser Tookits</p>
         <h1 className="mt-2 font-semibold text-2xl tracking-tight">{t('profiles')}</h1>
       </header>
       <div aria-live="polite" className="mb-5 text-sm">

@@ -1,12 +1,12 @@
-import { normalizeDomain, type ProxyConfig, type RuleProfile } from '@browser-proxy/core'
+import { normalizeDomain, type ProxyConfig, type RuleProfile } from '@browser-tookits/core'
 import { ArrowDownIcon, ArrowUpIcon, PlusIcon, RefreshCwIcon, Trash2Icon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { Button } from '../../components/ui/button'
+import { Input } from '../../components/ui/input'
+import { NativeSelect } from '../../components/ui/native-select'
 import { errorKey, requestConfig } from './client'
-import { Button } from './components/ui/button'
-import { Input } from './components/ui/input'
-import { NativeSelect } from './components/ui/native-select'
 
 export const RulesSettings = () => {
   const { t } = useTranslation()

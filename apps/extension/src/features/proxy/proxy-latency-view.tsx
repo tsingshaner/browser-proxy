@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { api } from './browser-api'
-import { Button } from './components/ui/button'
+import { api } from '../../browser-api'
+import { Button } from '../../components/ui/button'
 import { probeUrl } from './proxy-latency'
 
 export const ProxyLatencyTest = ({

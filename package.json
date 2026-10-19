@@ -1,15 +1,15 @@
 {
-  "name": "browser-proxy",
+  "name": "browser-tookits",
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "pnpm --filter \"@browser-proxy/*\" -r build",
+    "build": "pnpm --filter \"@browser-tookits/*\" -r build",
     "check": "biome check . --write",
     "check:cspell": "cspell . --no-summary --no-progress --gitignore",
     "check:knip": "knip",
-    "check:type": "tsc -p tsconfig.json && pnpm --filter \"@browser-proxy/*\" -r check:type",
-    "dev": "pnpm --filter @browser-proxy/extension dev",
-    "dev:firefox": "pnpm --filter @browser-proxy/extension dev:firefox",
+    "check:type": "tsc -p tsconfig.json && pnpm --filter \"@browser-tookits/*\" -r check:type",
+    "dev": "pnpm --filter @browser-tookits/extension dev",
+    "dev:firefox": "pnpm --filter @browser-tookits/extension dev:firefox",
     "release": "pnpm build",
     "test": "vitest run"
   },

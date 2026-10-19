@@ -1,11 +1,11 @@
-import { type ProxyConfig, parseConfig } from '@browser-proxy/core'
+import { type ProxyConfig, parseConfig } from '@browser-tookits/core'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { api } from './browser-api'
+import { api } from '../../browser-api'
+import { Button } from '../../components/ui/button'
+import { RadioGroup, RadioGroupItem } from '../../components/ui/radio-group'
 import { errorKey, requestConfig } from './client'
-import { Button } from './components/ui/button'
-import { RadioGroup, RadioGroupItem } from './components/ui/radio-group'
 
 export const ModeSwitcher = () => {
   const { t } = useTranslation()

@@ -4,7 +4,7 @@
     "moduleResolution": "Bundler",
     "noEmit": true,
     "paths": {
-      "@browser-proxy/core": ["./packages/core/src/index.ts"]
+      "@browser-tookits/core": ["./packages/core/src/index.ts"]
     },
     "skipLibCheck": true,
     "strict": true,

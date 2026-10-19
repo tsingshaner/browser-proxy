@@ -1,4 +1,4 @@
-import { generatePac, type ProxyConfig } from '@browser-proxy/core'
+import { generatePac, type ProxyConfig } from '@browser-tookits/core'
 
 export interface FirefoxProxyValue {
   proxyType: 'none' | 'system' | 'autoConfig'

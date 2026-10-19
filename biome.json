@@ -13,7 +13,7 @@
       }
     },
     {
-      "includes": ["apps/extension/src/popup.tsx", "apps/extension/src/options.tsx"],
+      "includes": ["apps/extension/src/popup/index.tsx", "apps/extension/src/options/index.tsx"],
       "linter": {
         "rules": {
           "style": {

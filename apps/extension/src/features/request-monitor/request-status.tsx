@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { api } from './browser-api'
-import { Button } from './components/ui/button'
+import { api } from '../../browser-api'
+import { Button } from '../../components/ui/button'
 
 import type { RequestSummary } from './request-monitor'
 
@@ -67,7 +67,9 @@ export const RequestStatus = () => {
                 <Button
                   className="h-auto justify-start whitespace-normal break-all px-0 text-left"
                   onClick={() => {
-                    void api.tabs.create({ url: api.runtime.getURL(`options.html#rule=${encodeURIComponent(domain)}`) })
+                    void api.tabs.create({
+                      url: api.runtime.getURL(`src/options/index.html#rule=${encodeURIComponent(domain)}`)
+                    })
                   }}
                   size="sm"
                   type="button"

@@ -1,15 +1,16 @@
 import { createRoot } from 'react-dom/client'
 import { useTranslation } from 'react-i18next'
 
-import { BackupSettings } from './backup-settings'
-import { api } from './browser-api'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs'
-import { translationsReady } from './i18n'
-import { LogSettings } from './log-settings'
-import { ModeSwitcher } from './mode-switcher'
-import { ProxySettings } from './proxy-settings-view'
-import { RulesSettings } from './rules-settings'
-import './style.css'
+import { api } from '../browser-api'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs'
+import { BackupSettings } from '../features/backup/backup-settings'
+import { LogSettings } from '../features/logs/log-settings'
+import { ModeSwitcher } from '../features/proxy/mode-switcher'
+import { ProxySettings } from '../features/proxy/proxy-settings-view'
+import { RulesSettings } from '../features/proxy/rules-settings'
+import { RedirectSettings } from '../features/redirect/redirect-settings'
+import { translationsReady } from '../i18n'
+import '../style.css'
 
 const Options = () => {
   const { t } = useTranslation()
@@ -20,7 +21,7 @@ const Options = () => {
           aria-label={t('manage')}
           className="mb-6 grid w-full grid-cols-2 group-data-[orientation=horizontal]/tabs:h-auto sm:flex"
         >
-          {['mode', 'profiles', 'rulesTitle', 'backup', 'logs'].map((value) => (
+          {['mode', 'profiles', 'rulesTitle', 'redirectTitle', 'backup', 'logs'].map((value) => (
             <TabsTrigger className="h-9" key={value} value={value}>
               {t(value)}
             </TabsTrigger>
@@ -34,6 +35,9 @@ const Options = () => {
         </TabsContent>
         <TabsContent value="rulesTitle">
           <RulesSettings />
+        </TabsContent>
+        <TabsContent value="redirectTitle">
+          <RedirectSettings />
         </TabsContent>
         <TabsContent value="backup">
           <BackupSettings />

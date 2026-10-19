@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => {
           default_locale: 'en',
           description: '__MSG_description__',
           manifest_version: 3,
-          name: 'Browser Proxy',
+          name: 'Browser Tookits',
           version: '0.1.0',
           ...(firefox
             ? {
@@ -35,20 +35,20 @@ export default defineConfig(({ mode }) => {
                   }
                 },
                 sidebar_action: {
-                  default_panel: 'options.html',
-                  default_title: 'Browser Proxy',
+                  default_panel: 'src/options/index.html',
+                  default_title: 'Browser Tookits',
                   open_at_install: false
                 }
               }
-            : { minimum_chrome_version: '120', side_panel: { default_path: 'options.html' } }),
+            : { minimum_chrome_version: '120', side_panel: { default_path: 'src/options/index.html' } }),
           action: {
             default_icon: {
               16: 'public/icon-16.png',
               32: 'public/icon-32.png',
               48: 'public/icon-48.png'
             },
-            default_popup: 'popup.html',
-            default_title: 'Browser Proxy'
+            default_popup: 'src/popup/index.html',
+            default_title: 'Browser Tookits'
           },
           background: firefox
             ? { scripts: ['src/background.ts'], type: 'module' }
@@ -60,9 +60,10 @@ export default defineConfig(({ mode }) => {
             48: 'public/icon-48.png',
             128: 'public/icon-128.png'
           },
-          options_ui: { open_in_tab: true, page: 'options.html' },
+          options_ui: { open_in_tab: true, page: 'src/options/index.html' },
           permissions: [
             'proxy',
+            'declarativeNetRequestWithHostAccess',
             'storage',
             'webRequest',
             'webRequestAuthProvider',

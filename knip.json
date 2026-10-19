@@ -5,7 +5,7 @@
   "vitest": true,
   "workspaces": {
     "apps/extension": {
-      "entry": ["src/background.ts", "src/popup.tsx", "src/options.tsx"]
+      "entry": ["src/background.ts", "src/popup/index.tsx", "src/options/index.tsx"]
     }
   }
 }

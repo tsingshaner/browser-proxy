@@ -1,4 +1,4 @@
-# Browser Proxy
+# Browser Tookits
 
 A Manifest V3 proxy extension for Chromium and Firefox. Built with TypeScript,
 React, CRXJS, shadcn/ui (Base UI), Tailwind CSS, i18next and LogTape in a pnpm workspace.
@@ -21,11 +21,13 @@ pnpm build
 - `packages/core`: validated configuration, domain routing, simple PAC generation
   and backup migration; compiled by tsdown.
 - `apps/extension`: background controller and React popup/settings.
+  Feature implementations and their tests live in `src/features/`; page HTML and
+  React entry points live in `src/options/` and `src/popup/`.
 
 Load `apps/extension/dist` as an unpacked extension in Chrome 120+.
 For Firefox 140+, open `about:debugging` → This Firefox → Load Temporary Add-on
 and choose `apps/extension/dist-firefox/manifest.json`. In `about:addons`, allow
-Browser Proxy in private windows: Firefox requires this permission to change
+Browser Tookits in private windows: Firefox requires this permission to change
 proxy settings, which affect regular and private windows. Normal Firefox
 installation requires Mozilla signing; temporary installation is for development.
 
@@ -70,6 +72,21 @@ Diagnostic logs use an isolated native IndexedDB store. They retain the most rec
 shows the latest 200 records and can export all retained records or clear them.
 Only allowlisted diagnostic messages are persisted, without arbitrary properties,
 credentials or full configurations. Storage failures do not block proxy switching.
+
+## Path redirect
+
+In settings, open **Path redirect** to replace an HTTPS source site root with a
+different HTTPS destination ending in `/`. For example, `https://source.example/repo?q=1`
+becomes `https://destination.example/git/repo?q=1`. Only top-level GET requests
+match; embedded frames, assets, POST requests and other sites are unaffected. Credentials,
+non-default ports, query parameters and fragments are not allowed in configured
+addresses. The feature is off by default and works independently of proxy mode.
+
+Save and grant source-site access to enable; **Disable now** removes the rule even
+if stored addresses are invalid. Settings persist locally as `pathRedirect`,
+separately from proxy backups. When migrating from Browser Toolkit, re-enter the
+addresses and disable its old redirect before enabling this one. The old extension
+and its data are not modified.
 
 ## Migrate configuration
 

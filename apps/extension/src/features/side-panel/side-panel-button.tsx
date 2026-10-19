@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { api, isFirefox } from './browser-api'
-import { Button } from './components/ui/button'
+import { api, isFirefox } from '../../browser-api'
+import { Button } from '../../components/ui/button'
 import { openSidePanel } from './side-panel'
 
 export const SidePanelButton = () => {
