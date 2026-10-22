@@ -7,7 +7,7 @@ import { createModeController } from './features/proxy/mode-controller'
 import { createProxyAuth } from './features/proxy/proxy-auth'
 import { createProxyLatency } from './features/proxy/proxy-latency'
 import { type FirefoxProxyValue, proxyValue } from './features/proxy/proxy-settings'
-import './features/redirect/background'
+import './features/dnr/background'
 import { createRequestMonitor } from './features/request-monitor/request-monitor'
 
 const logs = createPersistentLogs()
@@ -78,10 +78,7 @@ const testProxy = createProxyLatency({
 })
 
 api.runtime.onMessage.addListener((message: unknown, sender, respond) => {
-  if (
-    sender.id !== api.runtime.id ||
-    (message && typeof message === 'object' && 'feature' in message && message.feature === 'pathRedirect')
-  ) {
+  if (sender.id !== api.runtime.id || (message && typeof message === 'object' && 'feature' in message)) {
     return false
   }
 

@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
+import { createPublisher } from '../dnr/publisher'
+import { defaults as headerDefaults } from '../headers/config'
 import { CONFIG_KEY, defaults, RULE_ID, rules, validate } from './config'
-import { createController } from './controller'
 
 import type { Config } from './config'
 
@@ -17,11 +18,13 @@ function fake(initial: unknown = config, accessLevel = true) {
     failRules: false,
     failWrite: false,
     granted: true,
+    headerStored: undefined as unknown,
     stored: initial,
     supported: true
   }
   const api = {
     declarativeNetRequest: {
+      getDynamicRules: async () => state.active,
       isRegexSupported: async () => ({ isSupported: state.supported }),
       updateDynamicRules: async ({ removeRuleIds, addRules }: chrome.declarativeNetRequest.UpdateRuleOptions) => {
         if (state.failRules) {
@@ -33,18 +36,23 @@ function fake(initial: unknown = config, accessLevel = true) {
     permissions: { contains: async () => state.granted },
     storage: {
       local: {
-        get: async () => ({ [CONFIG_KEY]: state.stored }),
+        get: async () => ({ [CONFIG_KEY]: state.stored, headerRules: state.headerStored }),
         set: async (value: Record<string, unknown>) => {
           if (state.failWrite) {
             throw new Error('disk')
           }
-          state.stored = value[CONFIG_KEY]
+          if (CONFIG_KEY in value) {
+            state.stored = value[CONFIG_KEY]
+          }
+          if ('headerRules' in value) {
+            state.headerStored = value.headerRules
+          }
         },
         ...(accessLevel ? { setAccessLevel: async () => undefined } : {})
       }
     }
   }
-  return { api, controller: createController(api as unknown as typeof chrome), state }
+  return { api, controller: createPublisher(api as unknown as typeof chrome).controller('pathRedirect'), state }
 }
 
 describe('path redirect rules', () => {
@@ -165,51 +173,59 @@ describe('redirect controller', () => {
   })
 })
 
-describe('redirect background', () => {
+describe('network rule background', () => {
   afterEach(() => {
     // cspell:ignore unstub
     vi.unstubAllGlobals()
     vi.resetModules()
   })
-  test('only extension pages can save; unrelated messages are ignored', async () => {
-    const { api, state } = fake()
-    const addListener = vi.fn()
-    const onMessage = vi.fn()
-    vi.stubGlobal('chrome', {
-      ...api,
-      permissions: { ...api.permissions, onRemoved: { addListener } },
-      runtime: {
-        getURL: () => 'chrome-extension://extension-id/',
+  test.each(['pathRedirect', 'headerRules'] as const)(
+    'only extension pages can save %s; unrelated messages are ignored',
+    async (feature) => {
+      const { api, state } = fake()
+      const addListener = vi.fn()
+      const onMessage = vi.fn()
+      vi.stubGlobal('chrome', {
+        ...api,
+        permissions: { ...api.permissions, onAdded: { addListener }, onRemoved: { addListener } },
+        runtime: {
+          getURL: () => 'chrome-extension://extension-id/',
+          id: 'extension-id',
+          onInstalled: { addListener },
+          onMessage: { addListener: onMessage },
+          onStartup: { addListener }
+        },
+        storage: { ...api.storage, onChanged: { addListener } }
+      })
+      await import('../dnr/background')
+      const listener = onMessage.mock.calls[0][0] as (
+        message: unknown,
+        sender: chrome.runtime.MessageSender,
+        respond: (value: unknown) => void
+      ) => boolean
+      const sender = {
         id: 'extension-id',
-        onInstalled: { addListener },
-        onMessage: { addListener: onMessage },
-        onStartup: { addListener }
-      },
-      storage: { ...api.storage, onChanged: { addListener } }
-    })
-    await import('./background')
-    const listener = onMessage.mock.calls[0][0] as (
-      message: unknown,
-      sender: chrome.runtime.MessageSender,
-      respond: (value: unknown) => void
-    ) => boolean
-    const sender = { id: 'extension-id', url: 'chrome-extension://extension-id/src/options/index.html' }
-    const updated = { ...config, target: 'https://new.example/' }
-    const message = { action: 'save', config: updated, feature: 'pathRedirect' }
-    const respond = vi.fn()
-    expect(listener(message, { ...sender, id: 'another-extension' }, respond)).toBe(false)
-    expect(
-      listener(message, { ...sender, tab: { id: 1 } as chrome.tabs.Tab, url: 'https://source.example/' }, respond)
-    ).toBe(false)
-    expect(listener(message, { id: sender.id }, respond)).toBe(false)
-    expect(listener({ type: 'get-config' }, sender, respond)).toBe(false)
-    expect(listener({ action: 'unknown', feature: 'pathRedirect' }, sender, respond)).toBe(false)
-    expect(respond).not.toHaveBeenCalled()
-    const response = new Promise((resolve) => {
-      expect(listener(message, sender, resolve)).toBe(true)
-    })
-    await expect(response).resolves.toEqual({ config: updated, ok: true })
-    expect(state.stored).toEqual(updated)
-    expect(state.active).toEqual([{ id: 99 }, ...rules(updated)])
-  })
+        tab: { id: 1 } as chrome.tabs.Tab,
+        url: 'chrome-extension://extension-id/src/options/index.html'
+      }
+      const updated = feature === 'pathRedirect' ? { ...config, target: 'https://new.example/' } : headerDefaults()
+      const saved = feature === 'pathRedirect' ? updated : { ...updated, revision: 1 }
+      const message = { action: 'save', config: updated, feature }
+      const respond = vi.fn()
+      expect(listener(message, { ...sender, id: 'another-extension' }, respond)).toBe(false)
+      expect(
+        listener(message, { ...sender, tab: { id: 1 } as chrome.tabs.Tab, url: 'https://source.example/' }, respond)
+      ).toBe(false)
+      expect(listener(message, { id: sender.id }, respond)).toBe(false)
+      expect(listener({ type: 'get-config' }, sender, respond)).toBe(false)
+      expect(listener({ action: 'unknown', feature: 'pathRedirect' }, sender, respond)).toBe(false)
+      expect(respond).not.toHaveBeenCalled()
+      const response = new Promise((resolve) => {
+        expect(listener(message, sender, resolve)).toBe(true)
+      })
+      await expect(response).resolves.toEqual({ config: saved, ok: true })
+      expect(feature === 'pathRedirect' ? state.stored : state.headerStored).toEqual(saved)
+      expect(state.active).toEqual([{ id: 99 }, ...rules(state.stored as Config)])
+    }
+  )
 })

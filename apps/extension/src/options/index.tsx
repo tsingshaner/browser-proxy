@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { api } from '../browser-api'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { BackupSettings } from '../features/backup/backup-settings'
+import { HeaderSettings } from '../features/headers/header-settings'
 import { LogSettings } from '../features/logs/log-settings'
 import { ModeSwitcher } from '../features/proxy/mode-switcher'
 import { ProxySettings } from '../features/proxy/proxy-settings-view'
@@ -19,9 +20,9 @@ const Options = () => {
       <Tabs defaultValue={location.hash.startsWith('#rule=') ? 'rulesTitle' : 'profiles'}>
         <TabsList
           aria-label={t('manage')}
-          className="mb-6 grid w-full grid-cols-2 group-data-[orientation=horizontal]/tabs:h-auto sm:flex"
+          className="mb-6 grid w-full grid-cols-2 group-data-[orientation=horizontal]/tabs:h-auto sm:flex sm:flex-wrap"
         >
-          {['mode', 'profiles', 'rulesTitle', 'redirectTitle', 'backup', 'logs'].map((value) => (
+          {['mode', 'profiles', 'rulesTitle', 'redirectTitle', 'headersTitle', 'backup', 'logs'].map((value) => (
             <TabsTrigger className="h-9" key={value} value={value}>
               {t(value)}
             </TabsTrigger>
@@ -38,6 +39,9 @@ const Options = () => {
         </TabsContent>
         <TabsContent value="redirectTitle">
           <RedirectSettings />
+        </TabsContent>
+        <TabsContent value="headersTitle">
+          <HeaderSettings />
         </TabsContent>
         <TabsContent value="backup">
           <BackupSettings />

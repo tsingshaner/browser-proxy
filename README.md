@@ -88,6 +88,32 @@ separately from proxy backups. When migrating from Browser Toolkit, re-enter the
 addresses and disable its old redirect before enabling this one. The old extension
 and its data are not modified.
 
+## Request and response headers
+
+Open **Header rules** in settings to set or remove request and response headers.
+Rules support exact domains, `*.example.com` (subdomains only), literal HTTP/HTTPS
+URL prefixes, or browser-supported regular expressions. URL prefixes and regular
+expressions are case-sensitive. Optional request-method and resource-type filters
+limit each rule. Up to 100 rules can be saved; use Move up/down to set priority.
+For the same header, an earlier enabled rule takes priority. Different headers
+can be modified together. Setting an empty value differs from removing a header.
+
+The feature is off by default and independent of proxy mode. Saving enabled rules
+requests access to their sites; regular expressions require all HTTP/HTTPS site
+access. Browser header restrictions still apply. Values are stored locally in
+plain text under `headerRules`, separately from proxy backups. Stale edits from
+another settings page are rejected. **Disable now** stops header changes even
+when saved configuration is invalid.
+
+`src/features/dnr` is the single dynamic-rule publisher for headers and path
+redirects. It serializes changes, atomically replaces its owned rules, preserves
+other dynamic rules, and restores previous rules if saving fails. Browser startup,
+permission changes, and configuration changes reconcile the rules with storage.
+If rollback fails, it attempts to remove owned rules and reports recovery failure.
+If disabling cannot be persisted, rules stop immediately, but reloading or restarting
+may restore saved settings; the settings page reports this and asks you to retry.
+Existing `pathRedirect` configuration and its rule ID are retained.
+
 ## Migrate configuration
 
 Export your original configuration and historical logs before upgrading. Keep these
