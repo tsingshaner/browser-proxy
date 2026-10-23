@@ -9,6 +9,7 @@ import '../style.css'
 
 import { RequestStatus } from '../features/request-monitor/request-status'
 import { SidePanelButton } from '../features/side-panel/side-panel-button'
+import { TabButton } from '../features/tabs/tab-button'
 
 const Popup = () => {
   const { t } = useTranslation()
@@ -21,6 +22,7 @@ const Popup = () => {
       <ModeSwitcher />
       <RequestStatus />
       <SidePanelButton />
+      <TabButton />
       <Button
         className="w-full"
         onClick={() => {

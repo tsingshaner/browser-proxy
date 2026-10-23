@@ -3,6 +3,7 @@ import { initReactI18next } from 'react-i18next'
 
 import { api } from './browser-api'
 import { en as headerEn, zh as headerZh } from './features/headers/messages'
+import { en as tabsEn, zh as tabsZh } from './features/tabs/messages'
 
 export const translationsReady = i18next.use(initReactI18next).init({
   fallbackLng: 'en',
@@ -12,6 +13,7 @@ export const translationsReady = i18next.use(initReactI18next).init({
     en: {
       translation: {
         ...headerEn,
+        ...tabsEn,
         'active-profile': 'Switch to another connection before deleting this proxy.',
         add: 'New proxy',
         addRule: 'Add rule',
@@ -156,6 +158,7 @@ export const translationsReady = i18next.use(initReactI18next).init({
     zh: {
       translation: {
         ...headerZh,
+        ...tabsZh,
         'active-profile': '请先切换连接方式，再删除当前代理。',
         add: '新建代理',
         addRule: '添加规则',

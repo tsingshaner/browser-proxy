@@ -8,6 +8,7 @@ import { createProxyAuth } from './features/proxy/proxy-auth'
 import { createProxyLatency } from './features/proxy/proxy-latency'
 import { type FirefoxProxyValue, proxyValue } from './features/proxy/proxy-settings'
 import './features/dnr/background'
+import './features/tabs/background'
 import { createRequestMonitor } from './features/request-monitor/request-monitor'
 
 const logs = createPersistentLogs()

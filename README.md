@@ -73,6 +73,21 @@ shows the latest 200 records and can export all retained records or clear them.
 Only allowlisted diagnostic messages are persisted, without arbitrary properties,
 credentials or full configurations. Storage failures do not block proxy switching.
 
+## Duplicate tabs
+
+Choose **Clean up duplicate tabs** in the popup, or **Tabs** in settings or the
+side panel. Preview duplicates in the source window or all normal windows, choose
+which pages to keep, then close the selected tabs. Matching uses the complete URL,
+including query strings and fragments. Firefox containers are kept separate;
+private windows and non-HTTP/HTTPS pages are excluded. Pinned, audible and each
+window's selected tabs are protected. Changed pages are checked again before closing.
+
+**Reopen closed pages** reloads URLs from the latest successful batch, kept only in
+session storage. It does not restore unsaved forms, history or page state. Firefox
+uses the `cookies` permission to reopen pages in their original container, without
+reading cookie contents. An interrupted reopening with an uncertain result is not
+retried automatically; inspect your existing tabs before opening it manually.
+
 ## Path redirect
 
 In settings, open **Path redirect** to replace an HTTPS source site root with a

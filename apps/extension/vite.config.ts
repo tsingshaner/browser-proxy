@@ -68,7 +68,7 @@ export default defineConfig(({ mode }) => {
             'webRequest',
             'webRequestAuthProvider',
             'webNavigation',
-            ...(firefox ? [] : ['sidePanel'])
+            ...(firefox ? ['cookies'] : ['sidePanel'])
           ]
         }
         // biome-ignore-end lint/style/useNamingConvention: Browser manifest schema ends here.
