@@ -37,7 +37,7 @@ The popup and settings use the shadcn/ui Base Nova components in
 `apps/extension/src/components/ui`, backed by `@base-ui/react`. Shared theme
 tokens live in `src/style.css`. All extension pages follow the system light/dark
 appearance automatically, including native form controls; `components.json` configures future shadcn additions.
-Native Select preserves browser form submission; tabs and mode radios use Base UI
+Select preserves browser form submission; select menus, checkboxes, tabs and mode radios use Base UI
 keyboard and focus behavior. Component sources are adapted from the
 [official registry](https://ui.shadcn.com/docs/components/base/button), with the
 [MIT notice](apps/extension/public/THIRD-PARTY-NOTICES.txt) included in both builds.

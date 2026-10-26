@@ -5,7 +5,7 @@ import type { ProxyConfig, ProxyProfile } from '@browser-tookits/core'
 
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
-import { NativeSelect } from '../../components/ui/native-select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select'
 import { errorKey, requestConfig } from './client'
 import { ProxyLatencyTest } from './proxy-latency-view'
 
@@ -92,13 +92,25 @@ export const ProxySettings = () => {
             </label>
             <label className="grid gap-2 font-medium text-sm" htmlFor="proxy-scheme">
               {t('scheme')}
-              <NativeSelect className="w-full" defaultValue={editing?.scheme ?? 'http'} id="proxy-scheme" name="scheme">
-                {['http', 'https', 'socks4', 'socks5'].map((s) => (
-                  <option key={s} value={s}>
-                    {s.toUpperCase()}
-                  </option>
-                ))}
-              </NativeSelect>
+              <Select
+                defaultValue={editing?.scheme ?? 'http'}
+                disabled={busy}
+                items={Object.fromEntries(
+                  ['http', 'https', 'socks4', 'socks5'].map((value) => [value, value.toUpperCase()])
+                )}
+                name="scheme"
+              >
+                <SelectTrigger className="w-full" id="proxy-scheme">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {['http', 'https', 'socks4', 'socks5'].map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {s.toUpperCase()}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </label>
             <label className="grid gap-2 font-medium text-sm" htmlFor="proxy-host">
               {t('host')}

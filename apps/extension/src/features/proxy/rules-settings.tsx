@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
-import { NativeSelect } from '../../components/ui/native-select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select'
 import { errorKey, requestConfig } from './client'
 
 export const RulesSettings = () => {
@@ -85,18 +85,20 @@ export const RulesSettings = () => {
     ;[rules[index], rules[next]] = [adjacent, current]
     updateGroup({ rules })
   }
-  const options = (
-    <>
-      <option value="direct">{t('direct')}</option>
-      {[{ id: 'auto', name: t('auto') }, ...(config?.profiles ?? []), ...(config?.ruleProfiles ?? [])]
-        .filter((p) => p.id !== selected)
-        .map((p) => (
-          <option key={p.id} value={p.id}>
-            {config?.profiles.some((proxy) => proxy.id === p.id) ? p.name : t('ruleGroupOption', { name: p.name })}
-          </option>
-        ))}
-    </>
-  )
+  const targets = [
+    { label: t('direct'), value: 'direct' },
+    ...[{ id: 'auto', name: t('auto') }, ...(config?.profiles ?? []), ...(config?.ruleProfiles ?? [])]
+      .filter((p) => p.id !== selected)
+      .map((p) => ({
+        label: config?.profiles.some((proxy) => proxy.id === p.id) ? p.name : t('ruleGroupOption', { name: p.name }),
+        value: p.id
+      }))
+  ]
+  const options = targets.map(({ value, label }) => (
+    <SelectItem key={value} value={value}>
+      {label}
+    </SelectItem>
+  ))
   return (
     <section className="space-y-6">
       <header className="flex items-center justify-between gap-3">
@@ -133,22 +135,32 @@ export const RulesSettings = () => {
             htmlFor="rule-profile"
           >
             {t('ruleProfile')}
-            <NativeSelect
-              className="w-full"
+            <Select
               disabled={busy || dirty}
-              id="rule-profile"
-              onChange={(event) => {
-                setSelected(event.target.value)
+              items={[
+                { label: t('auto'), value: 'auto' },
+                ...(config.ruleProfiles ?? []).map((p) => ({ label: p.name, value: p.id }))
+              ]}
+              onValueChange={(value) => {
+                if (value === null) {
+                  return
+                }
+                setSelected(value)
               }}
               value={selected}
             >
-              <option value="auto">{t('auto')}</option>
-              {config.ruleProfiles?.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </NativeSelect>
+              <SelectTrigger className="w-full" id="rule-profile">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="auto">{t('auto')}</SelectItem>
+                {config.ruleProfiles?.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>
+                    {p.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </label>
           <Button
             disabled={busy || dirty}
@@ -229,16 +241,22 @@ export const RulesSettings = () => {
             )}
             <label className="grid gap-2 font-medium text-sm" htmlFor="rule-default">
               {t('defaultTarget')}
-              <NativeSelect
-                className="w-full"
-                id="rule-default"
-                onChange={(event) => {
-                  updateGroup({ defaultTarget: event.target.value })
+              <Select
+                disabled={busy}
+                items={targets}
+                onValueChange={(value) => {
+                  if (value === null) {
+                    return
+                  }
+                  updateGroup({ defaultTarget: value })
                 }}
                 value={group.defaultTarget}
               >
-                {options}
-              </NativeSelect>
+                <SelectTrigger className="w-full" id="rule-default">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>{options}</SelectContent>
+              </Select>
             </label>
             {group.rules.map((rule, index) => (
               // biome-ignore lint/suspicious/noArrayIndexKey: Rows are fully controlled; editing a domain must not remount its input.
@@ -314,19 +332,28 @@ export const RulesSettings = () => {
                     htmlFor={`rule-target-${index}`}
                   >
                     {t('target')}
-                    <NativeSelect
-                      aria-label={`${t('target')} ${index + 1}`}
-                      className="w-full text-foreground"
-                      id={`rule-target-${index}`}
-                      onChange={(event) => {
+                    <Select
+                      disabled={busy}
+                      items={targets}
+                      onValueChange={(value) => {
+                        if (value === null) {
+                          return
+                        }
                         updateGroup({
-                          rules: group.rules.map((r, i) => (i === index ? { ...r, target: event.target.value } : r))
+                          rules: group.rules.map((r, i) => (i === index ? { ...r, target: value } : r))
                         })
                       }}
                       value={rule.target}
                     >
-                      {options}
-                    </NativeSelect>
+                      <SelectTrigger
+                        aria-label={`${t('target')} ${index + 1}`}
+                        className="w-full text-foreground"
+                        id={`rule-target-${index}`}
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>{options}</SelectContent>
+                    </Select>
                   </label>
                 </div>
               </div>

@@ -2,8 +2,9 @@ import { Globe } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '../../components/ui/button'
-import { NativeSelect } from '../../components/ui/native-select'
+import { Checkbox } from '../../components/ui/checkbox'
 import { RadioGroup, RadioGroupItem } from '../../components/ui/radio-group'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select'
 import { protectedTab } from './tab-manager'
 import { useTabManager } from './use-tab-manager'
 
@@ -18,15 +19,24 @@ export const TabSettings = () => {
       <div className="flex flex-wrap items-end gap-2">
         <label className="space-y-1 text-sm" htmlFor="tab-scope">
           <span>{t('tabsScope')}</span>
-          <NativeSelect
+          <Select
             disabled={busy}
-            id="tab-scope"
-            onChange={(event) => actions.scope(event.target.value)}
+            items={{ all: t('tabsAll'), current: t('tabsCurrent') }}
+            onValueChange={(value) => {
+              if (value !== null) {
+                actions.scope(value)
+              }
+            }}
             value={scope}
           >
-            <option value="current">{t('tabsCurrent')}</option>
-            <option value="all">{t('tabsAll')}</option>
-          </NativeSelect>
+            <SelectTrigger id="tab-scope">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="current">{t('tabsCurrent')}</SelectItem>
+              <SelectItem value="all">{t('tabsAll')}</SelectItem>
+            </SelectContent>
+          </Select>
         </label>
         <Button disabled={busy} onClick={() => void actions.refresh()} variant="outline">
           {t('tabsRefresh')}
@@ -93,12 +103,12 @@ export const TabSettings = () => {
                     <RadioGroupItem id={`keep-${tab.id}`} value={tab.id} />
                     {t('tabsKeep')}
                   </label>
-                  <label className="flex items-center gap-1">
-                    <input
+                  <label className="flex items-center gap-1" htmlFor={`close-${tab.id}`}>
+                    <Checkbox
                       checked={selections[index]?.closeIds.includes(tab.id) ?? false}
-                      disabled={protectedTab(tab) || selections[index]?.keepId === tab.id}
-                      onChange={(event) => actions.toggle(index, tab.id, event.target.checked)}
-                      type="checkbox"
+                      disabled={busy || protectedTab(tab) || selections[index]?.keepId === tab.id}
+                      id={`close-${tab.id}`}
+                      onCheckedChange={(checked) => actions.toggle(index, tab.id, checked)}
                     />
                     {t('tabsCloseItem')}
                   </label>

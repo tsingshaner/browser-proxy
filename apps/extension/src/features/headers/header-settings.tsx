@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '../../components/ui/button'
+import { Checkbox } from '../../components/ui/checkbox'
 import { MAX_RULES } from './config'
 import { HeaderRuleEditor } from './header-rule-editor'
 import { useHeaderSettings } from './use-header-settings'
@@ -20,16 +21,18 @@ export const HeaderSettings = () => {
         }}
       >
         <fieldset className="space-y-4" disabled={feedback.busy}>
-          <label className="flex items-center gap-2">
-            <input
+          <label className="flex items-center gap-2" htmlFor="headers-enabled">
+            <Checkbox
               checked={config.enabled}
-              onChange={(event) => actions.enable(event.target.checked)}
-              type="checkbox"
+              disabled={feedback.busy}
+              id="headers-enabled"
+              onCheckedChange={actions.enable}
             />
             {t('headersEnabled')}
           </label>
           {config.rules.map((rule, index) => (
             <HeaderRuleEditor
+              busy={feedback.busy}
               count={config.rules.length}
               index={index}
               key={rule.id}
