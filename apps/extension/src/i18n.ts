@@ -17,6 +17,7 @@ export const translationsReady = i18next.use(initReactI18next).init({
         'active-profile': 'Switch to another connection before deleting this proxy.',
         add: 'New proxy',
         addRule: 'Add rule',
+        allSettings: 'All settings',
         authFailed: 'Proxy authentication failed. Check your saved username and password.',
         authHint:
           'Authentication supports HTTP/HTTPS proxies. Credentials are stored locally; leave username empty to remove them.',
@@ -83,6 +84,7 @@ export const translationsReady = i18next.use(initReactI18next).init({
         pingTest: 'Test HTTP latency',
         pingTesting: 'Testing…',
         pingTimeout: 'Request timed out after 8 seconds.',
+        popupDraftHint: 'Save before closing the popup. Unsaved edits are kept only while it stays open.',
         port: 'Port',
         'private-permission':
           'Firefox requires private-window access to change proxy settings. Allow this extension in private windows in about:addons, then retry.',
@@ -162,6 +164,7 @@ export const translationsReady = i18next.use(initReactI18next).init({
         'active-profile': '请先切换连接方式，再删除当前代理。',
         add: '新建代理',
         addRule: '添加规则',
+        allSettings: '全部设置',
         authFailed: '代理认证失败，请检查已保存的用户名和密码。',
         authHint: '认证仅支持 HTTP/HTTPS 代理。凭据存储在本地，清空用户名可移除凭据。',
         auto: '默认规则组',
@@ -223,6 +226,7 @@ export const translationsReady = i18next.use(initReactI18next).init({
         pingTest: '测试 HTTP 延迟',
         pingTesting: '测试中…',
         pingTimeout: '请求超时（8 秒）。',
+        popupDraftHint: '关闭弹窗前请保存；切换页签会保留本次未保存的编辑。',
         port: '端口',
         'private-permission': 'Firefox 修改代理需要隐私窗口权限，请在 about:addons 中允许此扩展在隐私窗口运行后重试。',
         profiles: '固定代理',

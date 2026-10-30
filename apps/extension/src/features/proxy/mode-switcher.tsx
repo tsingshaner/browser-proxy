@@ -7,7 +7,7 @@ import { Button } from '../../components/ui/button'
 import { RadioGroup, RadioGroupItem } from '../../components/ui/radio-group'
 import { errorKey, requestConfig } from './client'
 
-export const ModeSwitcher = () => {
+export const ModeSwitcher = ({ compact = false }: { compact?: boolean }) => {
   const { t } = useTranslation()
   const [config, setConfig] = useState<ProxyConfig>()
   const mode = config?.mode
@@ -94,7 +94,7 @@ export const ModeSwitcher = () => {
             ...(config?.ruleProfiles?.map((p) => p.id) ?? [])
           ].map((value) => (
             <label
-              className={`flex cursor-pointer items-center gap-3 rounded-xl border p-4 transition-colors focus-within:ring-2 focus-within:ring-ring ${mode === value ? 'border-primary bg-muted' : 'border-border hover:bg-muted'} ${busy ? 'opacity-60' : ''}`}
+              className={`flex cursor-pointer items-center gap-3 rounded-xl border ${compact ? 'p-2.5' : 'p-4'} transition-colors focus-within:ring-2 focus-within:ring-ring ${mode === value ? 'border-primary bg-muted' : 'border-border hover:bg-muted'} ${busy ? 'opacity-60' : ''}`}
               htmlFor={`mode-${value}`}
               key={value}
             >
@@ -113,7 +113,7 @@ export const ModeSwitcher = () => {
           ))}
         </RadioGroup>
       </fieldset>
-      <div aria-live="polite" className="mt-4 min-h-10 text-xs">
+      <div aria-live="polite" className={compact ? 'mt-2 text-xs' : 'mt-4 min-h-10 text-xs'}>
         {error ? (
           <div className="text-destructive" role="alert">
             <p>{t(error)}</p>
